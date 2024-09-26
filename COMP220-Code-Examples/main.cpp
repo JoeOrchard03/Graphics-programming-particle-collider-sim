@@ -89,8 +89,9 @@ int main(int argc, char ** argsv)
 	
 	//Create a window, note we have to free the pointer returned using the DestroyWindow Function
 	//https://wiki.libsdl.org/SDL_CreateWindow
+	//Creates screen to view image with its dimensions uses a pointer so it does not duplicate, can change windows settings using different values
 	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 720, SDL_WINDOW_OPENGL);
-	//Checks to see if the window has been created, the pointer will have a value of some kind
+	//Checks to see if the window has been created, the pointer will have a value of some kind, if not it did not work
 	if (window == nullptr)
 	{
 		//Show error
@@ -101,8 +102,11 @@ int main(int argc, char ** argsv)
 		return 1;
 	}
 
+	//Vertices are the points that make up the shape
 	std::vector<Vertex> vertices;
+	//Indices control which vertices link to form a shape
 	std::vector<unsigned> indices;
+	//Texture
 	std::string texturePath;
 
 	//we can check for box here too!
@@ -134,7 +138,7 @@ int main(int argc, char ** argsv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	//Initialize GLEW
+	//Initialize GLEW, glew lets sdl and open gl work together better
 	glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();
 	if (glewError != GLEW_OK)
@@ -142,7 +146,7 @@ int main(int argc, char ** argsv)
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to initialise GLEW", (char*)glewGetErrorString(glewError), NULL);
 	}
 
-	//create Vertex Array Object
+	//create Vertex Array Object, array that contains vertices (collection of floats that represent pos in 3D space)
 	GLuint VertexArrayID;
 	//generate vertex array objects
 	glGenVertexArrays(1, &VertexArrayID); //first param is number of object, 2nd is object
@@ -208,7 +212,7 @@ int main(int argc, char ** argsv)
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
-
+		//IF IMAGE BREAKING CHECK THIS
 		glGenTextures(1, &textureID);
 
 		// "Bind" the newly created texture : all future texture functions will modify this texture
