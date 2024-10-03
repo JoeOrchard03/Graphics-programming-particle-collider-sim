@@ -23,19 +23,19 @@ void main()
 		);
 
 
-		/*float kernal[9] = float[](
+		float kernal[9] = float[](
 			-1,-1,-1,
 			-1, 9,-1,
 			-1,-1,-1
 		);
-		*/
 		
-		//EDGE DETECTION
+		
+		/*EDGE DETECTION -8 inverts the colour of the middle pixel of a fragment of 9 like seen below, setting the others to 1 gives a blur effect making the colours inverted and blurred.
 		float kernal[9] = float[](
 			1, 1, 1,
 			1, -8, 1,
 			1, 1, 1
-		);
+		);*/
 		
 
 		vec3 sampleTex[9];

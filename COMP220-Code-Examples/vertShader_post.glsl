@@ -5,7 +5,7 @@ out vec2 textureCoords;
 
 void main()
 {
-	//Calculate Texture Coordinates for the Vertex
+	//Calculate Texture Coordinates for the Vertex (Controls where the cube spawns in 3d space)
 	textureCoords = (vertexPosition + 1.0) / 2.0;
 	gl_Position = vec4(vertexPosition, 0.0, 1.0);
 }

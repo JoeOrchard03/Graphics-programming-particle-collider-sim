@@ -233,6 +233,7 @@ int main(int argc, char ** argsv)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	// Create and compile our GLSL program from the shaders
+	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
 	GLuint programID = LoadShaders("BasicVert.glsl", 
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
@@ -244,20 +245,26 @@ int main(int argc, char ** argsv)
 
 	glm::mat4 mvp, view, projection; // set up model, view, projection
 	
+	//Sets the default position and orientation of the camera
 	glm::vec3 position(0, 0, 2), forward(0,0,-1), rotation(0);
 	const glm::vec4 cameraFace(0,0,-1,0);
+	//Camera movement and rotation speed
 	const float walkspeed = 0.2f, rotSpeed = 0.1f;
+	//Gets the location of the object beginning at a certain point
 	unsigned int transformLoc = glGetUniformLocation(programID, "transform");
+	//Sets the colour of the object, changes default colour before texture is applied.
 	unsigned int objColourLoc = glGetUniformLocation(programID, "objColour");
+	//The object that we are loading in
 	unsigned int modelLoc = glGetUniformLocation(programID, "model");
+	//Represents where the camera is in 3D space
 	unsigned int viewPosLoc = glGetUniformLocation(programID, "viewPos");
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
 	float lightValues[] = {
-		-1.0f, 1.f, 0.4f, // lightDir
-		0.0f, // padding for alignment
-		1.f, 1.f, 1.f // lightColour
+		-1.0f, 1.f, 0.4f, // lightDir - rotation the light is coming from
+		0.0f, // padding for alignment - do you want to offset the light
+		1.f, 1.f, 1.f // lightColour - The colour of the light in rgb values
 	};
 	GLuint bindingPoint = 1, uniformBuffer, blockIndex;
 	blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
@@ -278,9 +285,10 @@ int main(int argc, char ** argsv)
 	//fill with empty data
 	//NOTE: REPLACE IMAGE width, height WITH SCREEN RESOLUTION
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 960, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	//min and mag filter filters the colours between pixels so there are not sharp changes, gl_linear filtering applies this.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//without clamping, our fragShader kernal may go over the edge and wrap over the screen, causing unwanted artefacts!
+	//without clamping, our fragShader kernal may go over the edge and wrap over the screen, causing unwanted artefacts! Stops texture spilling over the side of the model
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -314,7 +322,7 @@ int main(int argc, char ** argsv)
 	}
 
 
-	//Screen Quad//
+	//Screen Quad// - The post effect rectangle that goes in front of the camera
 	//EXPANDED from workshop slides
 	float quadVertices[] =
 	{
@@ -329,9 +337,11 @@ int main(int argc, char ** argsv)
 		3, 2, 0
 	};
 
+	//OID means object ID
 	GLuint screenQuadVBOID;
 	glGenBuffers(1, &screenQuadVBOID);
 	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBOID);
+	//Creats array buffer it is 8 * size of float because we need an x and y for each point 4x2 is 8
 	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), quadVertices, GL_STATIC_DRAW);
 
 	GLuint screenVAOID;
@@ -359,7 +369,7 @@ int main(int argc, char ** argsv)
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
 	SDL_Event ev;
-	while (running)
+	while (running) //functions as an update function
 	{
 		//Poll for the events which have happened in this frame
 		//https://wiki.libsdl.org/SDL_PollEvent
@@ -374,6 +384,7 @@ int main(int argc, char ** argsv)
 				break;
 				//KEYDOWN Message, called when a key has been pressed down
 			case SDL_MOUSEMOTION: {
+					//Handles mouse movement
 				rotation.y -= ev.motion.xrel * rotSpeed;
 				rotation.x -= ev.motion.yrel * rotSpeed;
 				glm::mat4 viewRotate(1.f);
@@ -387,7 +398,7 @@ int main(int argc, char ** argsv)
 				switch (ev.key.keysym.sym)
 				{
 					//Escape key
-				case SDLK_ESCAPE:
+				case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
 					running = false;
 					break;
 				case SDLK_w:
@@ -400,22 +411,23 @@ int main(int argc, char ** argsv)
 			}
 		}
 
-		model = glm::rotate(model, glm::radians(0.1f), glm::vec3(0.0, 0.1, 0.1));
+		model = glm::rotate(model, glm::radians(1000.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
-		//Bind the framebuffer
+		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 		//Note later disable!
-		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST); // depth test stops us rendering stuff that is behind other stuff massively helps on performance.
 
-		//define the colour the 'clear' call uses when drawing over entire screen
-		glClearColor(0.0f,0.0f,0.4f,0.0f);
+		//define the colour the 'clear' call uses when drawing over entire screen - (SETS BACKGROUND COLOUR)
+		glClearColor(1.0f,1.0f,1.0f, 0.0f);
 		//clear the screen (prevents drawing over previous screen)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//use imported shader program(s)
 		glUseProgram(programID);
 
+		//Handles rotation of the cube
 		view = glm::lookAt(
 			position,
 			position + forward, //glm::vec3(0, 0, 0),
@@ -429,9 +441,11 @@ int main(int argc, char ** argsv)
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
+		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
 			glUniform3f(objColourLoc, -1.0f, -1.0f, -1.0f);
 		}
+		//If you do not have a texture it uses white as the default
 		else {
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
