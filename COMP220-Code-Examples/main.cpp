@@ -16,9 +16,10 @@
 #include "Vertex.h"
 #include <random>
 
-bool LoadModel(const char* filePath /*file path to the model*/, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath /*string to where the texture is*/)
+
+bool LoadModel(const char* filePath, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, std::string& texturePath)
 {
-	//calls the asset importer library
+	//Calls the asset importer library
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
 													   aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
@@ -40,28 +41,28 @@ bool LoadModel(const char* filePath /*file path to the model*/, std::vector<Vert
 	aiMesh* mesh = scene->mMeshes[0];
 	if (!mesh) return false;
 
-	//Clears the vertices and indices from other models this is fine once they have already been made.
-	ModelVertices.clear();
-	ModelIndices.clear();
+	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
+	vertices.clear();
+	indices.clear();
 
-	//Vertices and indices are gathered
-	ModelVertices.resize(mesh->mNumVertices);
+	//Assigns new vertices and indices from the fbx file
+	vertices.resize(mesh->mNumVertices);
 	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
 	for(unsigned i = 0; i < mesh->mNumVertices; i++)
 	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
+		vertices[i].x = mesh->mVertices[i].x;
+		vertices[i].y = mesh->mVertices[i].y;
+		vertices[i].z = mesh->mVertices[i].z;
 
 		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
+			vertices[i].nx = mesh->mNormals[i].x;
+			vertices[i].ny = mesh->mNormals[i].y;
+			vertices[i].nz = mesh->mNormals[i].z;
 		}
 
 		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
+			vertices[i].u = texCoords[i].x;
+			vertices[i].v = texCoords[i].y;
 		}
 	}
 
@@ -70,65 +71,11 @@ bool LoadModel(const char* filePath /*file path to the model*/, std::vector<Vert
 		aiFace& face = mesh->mFaces[i];
 		for (unsigned j = 0; j < face.mNumIndices; j++) 
 		{
-			ModelIndices.push_back(face.mIndices[j]);
+			indices.push_back(face.mIndices[j]);
 		}
 	}
 
-	return !(ModelVertices.empty() || ModelIndices.empty());
-}
-
-static void cameraAndKeyMovement(glm::vec3 rotation, float rotationSpeed, glm::vec4 cameraFace, glm::vec3 position, float walkSpeed, glm::vec3 forward, glm::vec3 right)
-{
-	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
-	bool running = true;
-	//SDL Event structure, this will be checked in the while loop
-	SDL_Event ev;
-	//Poll for the events which have happened in this frame
-	//https://wiki.libsdl.org/SDL_PollEvent
-	while (SDL_PollEvent(&ev))
-	{
-		//switch case for every message we are intereted in
-		switch (ev.type)
-		{
-			//quit message, usually called when the window has been closed
-		case SDL_QUIT:
-			running = false;
-			break;
-			//keydown message, called when a key has been pressed down
-		case SDL_MOUSEMOTION: {
-			//handles mouse movement
-			rotation.y -= ev.motion.xrel * rotationSpeed;
-			rotation.x -= ev.motion.yrel * rotationSpeed;
-			glm::mat4 viewRotation(1.f);
-			viewRotation = glm::rotate(viewRotation, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-			viewRotation = glm::rotate(viewRotation, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-			forward = glm::normalize(glm::vec3(viewRotation * cameraFace)); //normalise to avoid magnitude
-			break;
-		}
-		case SDL_KEYDOWN:
-			//check the actual key code of the key that has been pressed
-			switch (ev.key.keysym.sym)
-			{
-				//escape key
-			case SDLK_ESCAPE: // sdlk_(keybind) is how you do keybinds
-				running = false;
-				break;
-			case SDLK_w:
-				position += walkSpeed * forward;
-				break;
-			case SDLK_s:
-				position -= walkSpeed * forward;
-				break;
-				//added left and right camera movement
-			case SDLK_a:
-				position -= walkSpeed * right;
-				break;
-			case SDLK_d:
-				position += walkSpeed * right;
-				break;
-			}
-		}
-	}
+	return !(vertices.empty() || indices.empty());
 }
 
 int main(int argc, char ** argsv)
@@ -158,16 +105,15 @@ int main(int argc, char ** argsv)
 		return 1;
 	}
 
-	//These are gathered using asset importer and get the data directly from the fbx file of the model
 	//Vertices are the points that make up the shape
-	std::vector<Vertex> ModelVertices;
+	std::vector<Vertex> vertices;
 	//Indices control which vertices link to form a shape
-	std::vector<unsigned> ModelIndices;
+	std::vector<unsigned> indices;
 	//Texture
 	std::string texturePath;
 
-	//we can check for box here too! Using a function inside an if statement the function still gets called.
-	if (!LoadModel("utah-teapot.fbx", ModelVertices, ModelIndices, texturePath))
+	//we can check for box here too!
+	if (!LoadModel("Crate.fbx", vertices, indices, texturePath))
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR LOADING MODEL", "", NULL);
 		//TODO: clean up here
@@ -220,7 +166,7 @@ int main(int argc, char ** argsv)
 	//set our current buffer target data to the g_buffer_data object
 	//static draw means we are making a static object - we define the object once and do not change it (similar to static in Unity/Unreal)
 	//see GL documentation for other draw types
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * ModelVertices.size(), &ModelVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
 
 	glEnableVertexAttribArray(0); //attribute in location 0
@@ -260,7 +206,7 @@ int main(int argc, char ** argsv)
 	GLuint elementbuffer;
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * ModelIndices.size(), &ModelIndices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
 
 	// Create one OpenGL texture
@@ -303,7 +249,7 @@ int main(int argc, char ** argsv)
 	glm::mat4 mvp, view, projection; // set up model, view, projection
 	
 	//Sets the default position and orientation of the camera
-	glm::vec3 position(0, 0, 2), forward(0,0,-1), right(1,0,0), rotation(0);
+	glm::vec3 position(0, 0, 2), forward(0,0,-1), right(1, 0, 0), rotation(0);
 	const glm::vec4 cameraFace(0,0,-1,0);
 	//Camera movement and rotation speed
 	const float walkspeed = 0.2f, rotSpeed = 0.1f;
@@ -422,63 +368,60 @@ int main(int argc, char ** argsv)
 
 	//DEPTH TEST MOVED!!
 
-
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
 	SDL_Event ev;
 	while (running) //functions as an update function
 	{
-		cameraAndKeyMovement(rotation, rotSpeed, cameraFace, position, walkspeed, forward, right);
 		//Poll for the events which have happened in this frame
 		//https://wiki.libsdl.org/SDL_PollEvent
-		//while (SDL_PollEvent(&ev))
-		//{
-		//	//Switch case for every message we are intereted in
-		//	switch (ev.type)
-		//	{
-		//		//QUIT Message, usually called when the window has been closed
-		//	case SDL_QUIT:
-		//		running = false;
-		//		break;
-		//		//KEYDOWN Message, called when a key has been pressed down
-		//	case SDL_MOUSEMOTION: {
-		//			//Handles mouse movement
-		//		rotation.y -= ev.motion.xrel * rotSpeed;
-		//		rotation.x -= ev.motion.yrel * rotSpeed;
-		//		glm::mat4 viewRotate(1.f);
-		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		//		forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
-		//		break;
-		//	}
-		//	case SDL_KEYDOWN:
-		//		//Check the actual key code of the key that has been pressed
-		//		switch (ev.key.keysym.sym)
-		//		{
-		//			//Escape key
-		//		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
-		//			running = false;
-		//			break;
-		//		case SDLK_w:
-		//			position += walkspeed * forward;
-		//			break;
-		//		case SDLK_s:
-		//			position -= walkspeed * forward;
-		//			break;
-		//			//Added left and right camera movement
-		//		case SDLK_a:
-		//			position -= walkspeed * right;
-		//			break;
-		//		case SDLK_d:
-		//			position += walkspeed * right;
-		//			break;
-		//		}
-		//	}
-		//}
+		while (SDL_PollEvent(&ev))
+		{
+			//Switch case for every message we are intereted in
+			switch (ev.type)
+			{
+				//QUIT Message, usually called when the window has been closed
+			case SDL_QUIT:
+				running = false;
+				break;
+				//KEYDOWN Message, called when a key has been pressed down
+			case SDL_MOUSEMOTION: {
+					//Handles mouse movement
+				rotation.y -= ev.motion.xrel * rotSpeed;
+				rotation.x -= ev.motion.yrel * rotSpeed;
+				glm::mat4 viewRotate(1.f);
+				viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+				viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+				forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
+				break;
+			}
+			case SDL_KEYDOWN:
+				//Check the actual key code of the key that has been pressed
+				switch (ev.key.keysym.sym)
+				{
+					//Escape key
+				case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
+					running = false;
+					break;
+				case SDLK_w:
+					position += walkspeed * forward;
+					break;
+				case SDLK_s:
+					position -= walkspeed * forward;
+					break;
+					//Added left and right camera movement
+				case SDLK_a:
+					position -= walkspeed * right;
+					break;
+				case SDLK_d:
+					position += walkspeed * right;
+					break;
+				}
+			}
+		}
 
-		//model rotation speed
-		model = glm::rotate(model, glm::radians(5.0f), glm::vec3(0.0, 0.1, 0.1));
+		model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
@@ -524,7 +467,7 @@ int main(int argc, char ** argsv)
 		// Draw object from file
 		glBindVertexArray(VertexArrayID);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
-		glDrawElements(GL_TRIANGLES, ModelIndices.size(), GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -558,15 +501,4 @@ int main(int argc, char ** argsv)
 	SDL_Quit();
 
 	return 0;
-}
-
-
-void LoadCrate()
-{
-
-}
-
-void LoadTeaPot()
-{
-
 }
