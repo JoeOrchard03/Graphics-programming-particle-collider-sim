@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ResolveNugetPackages>false</ResolveNugetPackages>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B2D250CE-A4B3-36FC-93B4-495C88F16329}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Comp305\glfw-3.4\glfw-3.4\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Comp305/glfw-3.4/glfw-3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\bin\cmake.exe -SD:/Comp305/glfw-3.4/glfw-3.4 -BD:/Comp305/glfw-3.4/Build --check-stamp-file D:/Comp305/glfw-3.4/Build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakePackageConfigHelpers.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckCSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckIncludeFile.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckLibraryExists.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageHandleStandardArgs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageMessage.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindThreads.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\GNUInstallDirs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Internal\CheckSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\WriteBasicConfigVersionFile.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeSystem.cmake;D:\Comp305\glfw-3.4\glfw-3.4\CMake\cmake_uninstall.cmake.in;D:\Comp305\glfw-3.4\glfw-3.4\CMake\glfw3Config.cmake.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Comp305\glfw-3.4\Build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Comp305/glfw-3.4/glfw-3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\bin\cmake.exe -SD:/Comp305/glfw-3.4/glfw-3.4 -BD:/Comp305/glfw-3.4/Build --check-stamp-file D:/Comp305/glfw-3.4/Build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakePackageConfigHelpers.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckCSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckIncludeFile.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckLibraryExists.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageHandleStandardArgs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageMessage.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindThreads.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\GNUInstallDirs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Internal\CheckSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\WriteBasicConfigVersionFile.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeSystem.cmake;D:\Comp305\glfw-3.4\glfw-3.4\CMake\cmake_uninstall.cmake.in;D:\Comp305\glfw-3.4\glfw-3.4\CMake\glfw3Config.cmake.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Comp305\glfw-3.4\Build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/Comp305/glfw-3.4/glfw-3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\bin\cmake.exe -SD:/Comp305/glfw-3.4/glfw-3.4 -BD:/Comp305/glfw-3.4/Build --check-stamp-file D:/Comp305/glfw-3.4/Build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakePackageConfigHelpers.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckCSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckIncludeFile.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckLibraryExists.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageHandleStandardArgs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageMessage.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindThreads.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\GNUInstallDirs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Internal\CheckSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\WriteBasicConfigVersionFile.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeSystem.cmake;D:\Comp305\glfw-3.4\glfw-3.4\CMake\cmake_uninstall.cmake.in;D:\Comp305\glfw-3.4\glfw-3.4\CMake\glfw3Config.cmake.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Comp305\glfw-3.4\Build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/Comp305/glfw-3.4/glfw-3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\bin\cmake.exe -SD:/Comp305/glfw-3.4/glfw-3.4 -BD:/Comp305/glfw-3.4/Build --check-stamp-file D:/Comp305/glfw-3.4/Build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeDependentOption.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakePackageConfigHelpers.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckCSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckIncludeFile.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\CheckLibraryExists.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageHandleStandardArgs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindPackageMessage.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\FindThreads.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\GNUInstallDirs.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Internal\CheckSourceCompiles.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\JO278870\Downloads\cmake-3.30.5-windows-x86_64\cmake-3.30.5-windows-x86_64\share\cmake-3.30\Modules\WriteBasicConfigVersionFile.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;D:\Comp305\glfw-3.4\Build\CMakeFiles\3.30.5\CMakeSystem.cmake;D:\Comp305\glfw-3.4\glfw-3.4\CMake\cmake_uninstall.cmake.in;D:\Comp305\glfw-3.4\glfw-3.4\CMake\glfw3Config.cmake.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Comp305\glfw-3.4\Build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\ZERO_CHECK.vcxproj">
+      <Project>{62AB06F0-077B-3FE5-A8EB-642243D505EB}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\allocator.vcxproj">
+      <Project>{0AD65BCF-458F-32BA-AC5F-07ED1FD35471}</Project>
+      <Name>allocator</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\boing.vcxproj">
+      <Project>{5B0882C5-E8FE-3CEF-8B87-D32E598B1A98}</Project>
+      <Name>boing</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\clipboard.vcxproj">
+      <Project>{C0355E3B-297A-33AF-8B7B-9A144E3D5009}</Project>
+      <Name>clipboard</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\cursor.vcxproj">
+      <Project>{B1742328-F8F3-324B-9910-D135A4DD4D6F}</Project>
+      <Name>cursor</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\empty.vcxproj">
+      <Project>{88462266-109C-3CC0-8E7C-708B57192CD9}</Project>
+      <Name>empty</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\events.vcxproj">
+      <Project>{D237BE97-2992-34E5-A6EC-15A10F3F3C51}</Project>
+      <Name>events</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\gamma.vcxproj">
+      <Project>{B0453212-6D5A-360B-909C-8A49DDA07686}</Project>
+      <Name>gamma</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\gears.vcxproj">
+      <Project>{F0168F3D-A8CC-3015-B164-B35D4AA97EC4}</Project>
+      <Name>gears</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\src\glfw.vcxproj">
+      <Project>{D59E207D-A662-3A49-819B-FD2ACDD91377}</Project>
+      <Name>glfw</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\glfwinfo.vcxproj">
+      <Project>{01AF8D64-E2D0-35D3-9132-DCAC30711AD7}</Project>
+      <Name>glfwinfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\heightmap.vcxproj">
+      <Project>{92C06678-E9BB-35ED-9238-0943E4FFB569}</Project>
+      <Name>heightmap</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\icon.vcxproj">
+      <Project>{7AD7D288-CAC1-3A2B-9BFE-E6A5CD9C6A2A}</Project>
+      <Name>icon</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\iconify.vcxproj">
+      <Project>{D7888381-C2F6-3CAC-B040-54CE07E56644}</Project>
+      <Name>iconify</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\inputlag.vcxproj">
+      <Project>{EBA1D092-9A60-3F67-A729-959C30FBDA70}</Project>
+      <Name>inputlag</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\joysticks.vcxproj">
+      <Project>{32659436-E4CE-317C-9876-10772190DA94}</Project>
+      <Name>joysticks</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\monitors.vcxproj">
+      <Project>{B8D12C6F-E452-3DA1-850C-97CBF9CF4207}</Project>
+      <Name>monitors</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\msaa.vcxproj">
+      <Project>{9A31E629-49A3-3E17-A293-0863626D46DE}</Project>
+      <Name>msaa</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\offscreen.vcxproj">
+      <Project>{56E749C2-07EF-3D98-B9EA-757C4BA60A02}</Project>
+      <Name>offscreen</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\particles.vcxproj">
+      <Project>{706B5ED8-FCB6-3291-82B1-83152F67A8BE}</Project>
+      <Name>particles</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\reopen.vcxproj">
+      <Project>{083264EA-B47C-3F47-855D-AA331CE57B36}</Project>
+      <Name>reopen</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\sharing.vcxproj">
+      <Project>{C2995220-8898-3626-8F9A-4C8FEF7CE466}</Project>
+      <Name>sharing</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\splitview.vcxproj">
+      <Project>{BDC1F469-8267-3932-BB62-2AB12C91AD0A}</Project>
+      <Name>splitview</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\tearing.vcxproj">
+      <Project>{CF405940-D100-398D-BD43-081B1584922D}</Project>
+      <Name>tearing</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\threads.vcxproj">
+      <Project>{2E4334CB-8C1B-324E-B611-38C9FA1E3D7A}</Project>
+      <Name>threads</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\timeout.vcxproj">
+      <Project>{E33F2A35-12E6-35DA-95B0-4DD319EB91E7}</Project>
+      <Name>timeout</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\title.vcxproj">
+      <Project>{5C5AC259-9878-304B-B489-9205817D476C}</Project>
+      <Name>title</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\triangle-opengl.vcxproj">
+      <Project>{9A01B320-0C92-3317-BF5A-07ACD65E4E1E}</Project>
+      <Name>triangle-opengl</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\triangle-opengles.vcxproj">
+      <Project>{8BA0B788-2C70-39A8-BCCD-29A2CFD47613}</Project>
+      <Name>triangle-opengles</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\triangle-vulkan.vcxproj">
+      <Project>{B6DAD005-B014-360B-95DD-B95CEF249CF6}</Project>
+      <Name>triangle-vulkan</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\wave.vcxproj">
+      <Project>{EE6A5A77-8DDD-36E0-A342-921F6ECA7550}</Project>
+      <Name>wave</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\tests\window.vcxproj">
+      <Project>{F67C1D30-1FA1-3D1A-924E-B916808DC210}</Project>
+      <Name>window</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Comp305\glfw-3.4\Build\examples\windows.vcxproj">
+      <Project>{50981041-6D9E-38CE-BA60-FF4512E5F7B5}</Project>
+      <Name>windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
