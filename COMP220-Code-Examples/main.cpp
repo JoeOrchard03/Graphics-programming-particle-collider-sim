@@ -19,6 +19,7 @@
 
 bool LoadModel(const char* filePath, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, std::string& texturePath)
 {
+	//Calls the asset importer library
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
 													   aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
@@ -40,9 +41,11 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& vertices, std::vector<
 	aiMesh* mesh = scene->mMeshes[0];
 	if (!mesh) return false;
 
+	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
 	vertices.clear();
 	indices.clear();
 
+	//Assigns new vertices and indices from the fbx file
 	vertices.resize(mesh->mNumVertices);
 	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
 	for(unsigned i = 0; i < mesh->mNumVertices; i++)
@@ -246,7 +249,7 @@ int main(int argc, char ** argsv)
 	glm::mat4 mvp, view, projection; // set up model, view, projection
 	
 	//Sets the default position and orientation of the camera
-	glm::vec3 position(0, 0, 2), forward(0,0,-1), rotation(0);
+	glm::vec3 position(0, 0, 2), forward(0,0,-1), right(1, 0, 0), rotation(0);
 	const glm::vec4 cameraFace(0,0,-1,0);
 	//Camera movement and rotation speed
 	const float walkspeed = 0.2f, rotSpeed = 0.1f;
@@ -407,11 +410,18 @@ int main(int argc, char ** argsv)
 				case SDLK_s:
 					position -= walkspeed * forward;
 					break;
+					//Added left and right camera movement
+				case SDLK_a:
+					position -= walkspeed * right;
+					break;
+				case SDLK_d:
+					position += walkspeed * right;
+					break;
 				}
 			}
 		}
 
-		model = glm::rotate(model, glm::radians(1000.0f), glm::vec3(0.0, 0.1, 0.1));
+		model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
