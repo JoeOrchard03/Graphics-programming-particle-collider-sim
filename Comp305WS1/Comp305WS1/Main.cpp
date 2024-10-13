@@ -2,7 +2,15 @@
 #include <iostream>
 #include <glad/glad.h>
 
+//Points to vertex shader code
+const char *vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
 
+//Called on resizing of the window by user
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -17,30 +25,18 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 }
 
-//Does all the drawing onto the window gets called in the main while loop every frame
-void processDrawing()
+// Checks if the compilation o the vertex shader was successful, if not throws an error
+void CheckShaderSuccess(int vertexShader)
 {
-    //clears the screen and sets it as the color in the glClearColor function
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    int  success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f
-    };
-
-    //VBO is a vertex buffer object, it can store a large number of vertices in GPU memory. Allows sending of large batches of data to GPU to avoid performance issues
-    unsigned int VBO;
-    //Generates a vertex buffer object with an ID and points to the VBO
-    glGenBuffers(1, &VBO);
-
-    //Binds the VBO object to a open gl array buffer, meaning any calls made to the array buffer will configure VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 }
 
 int main()
@@ -80,6 +76,34 @@ int main()
     //Calls window resize function on window resize
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f,  0.5f, 0.0f
+    };
+
+    //VBO is a vertex buffer object, it can store a large number of vertices in GPU memory. Allows sending of large batches of data to GPU to avoid performance issues
+    unsigned int VBO;
+    //Generates a vertex buffer object with an ID and points to the VBO
+    glGenBuffers(1, &VBO);
+
+    //Binds the VBO object to a open gl array buffer, meaning any calls made to the array buffer will configure VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //Creates a new vertex shader
+    unsigned int vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+    //Links the shader and shader source
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    //Compliles the shader
+    glCompileShader(vertexShader);
+    //Checks the success of the vertex shader complation
+    CheckShaderSuccess(vertexShader);
+
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
     {
@@ -87,7 +111,9 @@ int main()
         processInput(window);
 
         //Want to call rendering commands every frame so they go here:
-        processDrawing();
+        //clears the screen and sets it as the color in the glClearColor function
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
