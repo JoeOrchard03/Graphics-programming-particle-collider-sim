@@ -154,15 +154,24 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-        // first triangle
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f,  0.5f, 0.0f,  // top left 
-        // second triangle
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
     };
+    unsigned int indices[] = {  // note that we start from 0!
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
+    };
+
+    //Creates an element buffer object that stores indices
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+    //binds the EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //Copy the indices into EBO buffer obj
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //VBO is a vertex buffer object, it can store a large number of vertices in GPU memory. Allows sending of large batches of data to GPU to avoid performance issues
     unsigned int VBO;
@@ -221,7 +230,10 @@ int main()
         glUseProgram(shaderProgram);
         //Binds the vertex array object
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //Handles drawingFirst param specifies the draw mode, 2nd is the number of vertices to draw,
+        //third is the type of indices, fourth is the offset
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
