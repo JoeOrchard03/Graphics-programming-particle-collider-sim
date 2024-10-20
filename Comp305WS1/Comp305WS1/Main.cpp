@@ -5,17 +5,21 @@
 //Points to vertex shader code
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   ourColor = aColor;\n"
 "}\0";
 
-const char* fragmentShaderSource =
+const char *fragmentShaderSource =
 "#version 330 core\n"
 "out vec4 FragColor;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"
 "{\n"
-"    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"    FragColor = ourColor;\n"
 "}\0";
 
 //Called on resizing of the window by user
@@ -154,24 +158,11 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+     //Positions         //Colors
+     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, // bottom left
+     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f  // top 
     };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
-    };
-
-    //Creates an element buffer object that stores indices
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-    //binds the EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //Copy the indices into EBO buffer obj
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //VBO is a vertex buffer object, it can store a large number of vertices in GPU memory. Allows sending of large batches of data to GPU to avoid performance issues
     unsigned int VBO;
@@ -228,12 +219,22 @@ int main()
 
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
+        
+        //Gets the time in seconds
+        float timeValue = glfwGetTime();
+        //Vary the color
+        float greenValue = sin(timeValue) / 2.0f + 0.5f;
+        //Gets the location of the global variable for use
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        //Set the global variable
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        
+
         //Binds the vertex array object
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         //Handles drawingFirst param specifies the draw mode, 2nd is the number of vertices to draw,
         //third is the type of indices, fourth is the offset
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         //Swaps the color buffer
         glfwSwapBuffers(window);

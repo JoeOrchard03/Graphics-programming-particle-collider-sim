@@ -3,8 +3,11 @@
 //Declare all input vertex attirbutes, each vertex is made of a set of 3d coordinates which is why you use vector 3, also set the location of the variable
 layout (location = 0) in vec3 aPos;
 
+out vec4 vertexColor; //Specify color output to fragment shader
+
 void main()
 {
     //Set the output of the vertex shader using the position of the vector and giving it a w value of 1
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    vertexColor = vec4(0.5,0.0,0.0,1.0); //Sets output varaible to dark red
 }
