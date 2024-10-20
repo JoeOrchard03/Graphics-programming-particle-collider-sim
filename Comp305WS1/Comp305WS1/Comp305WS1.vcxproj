@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Shaders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\lib\glfw3.lib" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Dependencies\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\include\GLFW\glfw3native.h" />
     <ClInclude Include="Dependencies\include\KHR\khrplatform.h" />
+    <ClInclude Include="Shaders.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.glsl" />
