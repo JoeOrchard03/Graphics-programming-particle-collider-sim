@@ -110,30 +110,24 @@ int main()
         1, 2, 3  // second triangle
     };
 
-    //Creates an element buffer object that stores indices
-    unsigned int EBO;
+    //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
+    unsigned int VBO, VAO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
-    //binds the EBO
+    //binds the VAO
+    glBindVertexArray(VAO);
+    
+    //binds the VBO and copies vertices into the VBO buffer obj
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //Binds EBO buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //Copy the indices into EBO buffer obj
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    //VBO is a vertex buffer object, it can store a large number of vertices in GPU memory. Allows sending of large batches of data to GPU to avoid performance issues
-    unsigned int VBO;
-    //Generates a vertex buffer object with an ID and points to the VBO
-    glGenBuffers(1, &VBO);
-
-    //Creats a vertex arrray object
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    
-    //Binds the VBO object to a open gl array buffer, meaning any calls made to the array buffer will configure VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     //Creates shader program object with vertex shader and fragment shader linked to it
     int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");;
@@ -144,12 +138,12 @@ int main()
     //4th says if you want to normalize the vertex
     //5th is the stride that says the space between vertex attributes
     //6th is the offset of where the position data begins
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     //Enables the vertex attribute at the location specified
     glEnableVertexAttribArray(0);
 
     //Configures the color attribute
-    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, * sizeof(float), (void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     //Configures the texture attribute
@@ -174,15 +168,6 @@ int main()
 
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
-        
-        ////Gets the time in seconds
-        //float timeValue = glfwGetTime();
-        ////Vary the color
-        //float greenValue = sin(timeValue) / 2.0f + 0.5f;
-        ////Gets the location of the global variable for use
-        //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        ////Set the global variable
-        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         
         //Binds the vertex array object
         glBindVertexArray(VAO);
