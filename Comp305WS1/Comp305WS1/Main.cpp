@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include "Shaders.h"
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 //Convertes loaded image into texture
 int LoadTexture()
@@ -43,6 +46,26 @@ int LoadTexture()
     //Can remove the image after conversion into texture to help performance
     stbi_image_free(data);
     return texture;
+}
+
+void HandleTransform(int shaderProgram)
+{
+    //Create a new matrix and give its values a default of 1
+    glm::mat4 trans = glm::mat4(1.0f);
+    //Set the images location using translate
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    //Rotate the image by 90 degrees around the z axis, must use radians
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0f));
+    
+
+    //Creates transform location variable, gets the location of the transform uniform variable from the shader
+    unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+    //Sends the matrix data to the shaders
+    glUniformMatrix4fv(
+        transformLoc, //Location of the global/uniform variable
+        1, //How many matrices to send
+        GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
+        glm::value_ptr(trans)); //Actual matrix data, converted to usable data using value_ptr
 }
 
 //Called on resizing of the window by user
@@ -99,11 +122,11 @@ int main()
 
     //Vertices for the rectangle
     float vertices[] = {
-        // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+        // positions             // texture coords
+         0.5f,  0.5f, 0.0f,      1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,      1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,      0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,      0.0f, 1.0f  // top left 
     };
     unsigned int indices[] = {
         0, 1, 3, // first triangle
@@ -138,17 +161,13 @@ int main()
     //4th says if you want to normalize the vertex
     //5th is the stride that says the space between vertex attributes
     //6th is the offset of where the position data begins
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     //Enables the vertex attribute at the location specified
     glEnableVertexAttribArray(0);
 
-    //Configures the color attribute
-    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
     //Configures the texture attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1,2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     //Load texture
     int texture = LoadTexture();
@@ -169,6 +188,8 @@ int main()
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
         
+        HandleTransform(shaderProgram);
+
         //Binds the vertex array object
         glBindVertexArray(VAO);
         //Handles drawingFirst param specifies the draw mode, 2nd is the number of vertices to draw,
