@@ -3,7 +3,6 @@
 //Declare output variables using "out"
 out vec4 FragColor;
 
-in vec3 ourColor; //Uniform global variable
 in vec2 TexCoord; //Uniform global variable
 
 uniform sampler2D ourTexture;

@@ -50,22 +50,37 @@ int LoadTexture()
 
 void HandleTransform(int shaderProgram)
 {
-    //Create a new matrix and give its values a default of 1
-    glm::mat4 trans = glm::mat4(1.0f);
-    //Set the images location using translate
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    //Rotate the image by 90 degrees around the z axis, must use radians
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0f));
-    
+    //Creates model matrix, made of transations, scalings and roations to apply to all objects in the world space
+    glm::mat4 model = glm::mat4(1.0f);
+    //rotate render plane on the x axis
+    model = glm::rotate(model, float(glfwGetTime()) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-    //Creates transform location variable, gets the location of the transform uniform variable from the shader
-    unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-    //Sends the matrix data to the shaders
+    //Creates view matrix allows you to move the entire scene to give the illusion the camera is moving
+    glm::mat4 view = glm::mat4(1.0f);
+    //moves the scene in the negative z direction which moves it away from the camera
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
+    glm::mat4 projection;
+    projection = glm::perspective(
+        glm::radians(45.0f), //FOV
+        800.0f / 600.0f, //Aspect ratio (viewport size)
+        0.1f, //Near plane of the frustum
+        100.0f); //Far plane of the frustum
+
+    //Creates model location variable, gets the location of the model uniform variable from the shader
+    int modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(
-        transformLoc, //Location of the global/uniform variable
+        modelLoc, //Location of the global/uniform variable
         1, //How many matrices to send
         GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
-        glm::value_ptr(trans)); //Actual matrix data, converted to usable data using value_ptr
+        glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
+
+    int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 //Called on resizing of the window by user
@@ -120,17 +135,66 @@ int main()
     //Calls window resize function on window resize
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    //Vertices for the rectangle
+    //Vertices for the cube
     float vertices[] = {
-        // positions             // texture coords
-         0.5f,  0.5f, 0.0f,      1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,      1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,      0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,      0.0f, 1.0f  // top left 
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
+    };
+
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
     //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
@@ -172,6 +236,8 @@ int main()
     //Load texture
     int texture = LoadTexture();
 
+    glEnable(GL_DEPTH_TEST);
+
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
     {
@@ -181,7 +247,7 @@ int main()
         //Want to call rendering commands every frame so they go here:
         //clears the screen and sets it as the color in the glClearColor function
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -194,7 +260,24 @@ int main()
         glBindVertexArray(VAO);
         //Handles drawingFirst param specifies the draw mode, 2nd is the number of vertices to draw,
         //third is the type of indices, fourth is the offset
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            if (i == 0)
+            {
+                angle = rand() % 1 + 90;
+            }
+            model = glm::rotate(model, float(glfwGetTime()) * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            int modelLoc = glGetUniformLocation(shaderProgram, "model");
+            glUniformMatrix4fv(
+                modelLoc, //Location of the global/uniform variable
+                1, //How many matrices to send
+                GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
+                glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
