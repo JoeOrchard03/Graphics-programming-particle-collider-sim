@@ -198,10 +198,9 @@ int main()
     };
 
     //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     //binds the VAO
     glBindVertexArray(VAO);
@@ -210,11 +209,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    //Binds EBO buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //Copy the indices into EBO buffer obj
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //Creates shader program object with vertex shader and fragment shader linked to it
     int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");;
@@ -237,6 +231,19 @@ int main()
     int texture = LoadTexture();
 
     glEnable(GL_DEPTH_TEST);
+
+    ////Set the camera position, z axis is moving through screen towards you so if you want the camera to move back have to move forward on the z axis
+    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    ////Points to the origin of the scene
+    //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    ////Sets the camera direction by normalizing the vector of the camera target from the camera position
+    //glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+    ////Gets the up direction of the world
+    //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    ////Cross product of the direction vector and the up vector is how you get the positive x axis of the camera
+    //glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+    ////Cross product of the right and direction vector gets the up axis
+    //glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
@@ -278,6 +285,14 @@ int main()
                 glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        float radius = 10.0f;
+        float camX = static_cast<float>(sin(glfwGetTime()) * radius);
+        float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+        view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
