@@ -48,41 +48,6 @@ int LoadTexture()
     return texture;
 }
 
-void HandleTransform(int shaderProgram)
-{
-    //Creates model matrix, made of transations, scalings and roations to apply to all objects in the world space
-    glm::mat4 model = glm::mat4(1.0f);
-    //rotate render plane on the x axis
-    model = glm::rotate(model, float(glfwGetTime()) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-    //Creates view matrix allows you to move the entire scene to give the illusion the camera is moving
-    glm::mat4 view = glm::mat4(1.0f);
-    //moves the scene in the negative z direction which moves it away from the camera
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-    //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
-    glm::mat4 projection;
-    projection = glm::perspective(
-        glm::radians(45.0f), //FOV
-        800.0f / 600.0f, //Aspect ratio (viewport size)
-        0.1f, //Near plane of the frustum
-        100.0f); //Far plane of the frustum
-
-    //Creates model location variable, gets the location of the model uniform variable from the shader
-    int modelLoc = glGetUniformLocation(shaderProgram, "model");
-    glUniformMatrix4fv(
-        modelLoc, //Location of the global/uniform variable
-        1, //How many matrices to send
-        GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
-        glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
-
-    int viewLoc = glGetUniformLocation(shaderProgram, "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-}
-
 //Called on resizing of the window by user
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -198,9 +163,10 @@ int main()
     };
 
     //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
-    unsigned int VBO, VAO;
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     //binds the VAO
     glBindVertexArray(VAO);
@@ -209,6 +175,11 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //Binds EBO buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //Copy the indices into EBO buffer obj
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //Creates shader program object with vertex shader and fragment shader linked to it
     int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");;
@@ -227,8 +198,20 @@ int main()
     glVertexAttribPointer(1,2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    glUseProgram(shaderProgram);
+
     //Load texture
     int texture = LoadTexture();
+
+    //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
+    glm::mat4 projection;
+    projection = glm::perspective(
+        glm::radians(45.0f), //FOV
+        800.0f / 600.0f, //Aspect ratio (viewport size)
+        0.1f, //Near plane of the frustum
+        100.0f); //Far plane of the frustum
+    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     glEnable(GL_DEPTH_TEST);
 
@@ -261,7 +244,15 @@ int main()
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
         
-        HandleTransform(shaderProgram);
+        //HandleTransform(shaderProgram);
+
+        glm::mat4 view = glm::mat4(1.0f);
+        const float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
         //Binds the vertex array object
         glBindVertexArray(VAO);
@@ -276,23 +267,18 @@ int main()
             {
                 angle = rand() % 1 + 90;
             }
-            model = glm::rotate(model, float(glfwGetTime()) * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             int modelLoc = glGetUniformLocation(shaderProgram, "model");
             glUniformMatrix4fv(
                 modelLoc, //Location of the global/uniform variable
                 1, //How many matrices to send
                 GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
                 glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
+
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        float radius = 10.0f;
-        float camX = static_cast<float>(sin(glfwGetTime()) * radius);
-        float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-        view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
