@@ -7,6 +7,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+//Camera variables
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+//Time variabes:
+//Time between current frame and last frame
+float deltaTime = 0.0f;
+//Time of last frame
+float lastFrame = 0.0f;
+
+//Mouse variables:
+bool firstMouse = true;
+float yaw = -90.0f; // -90 points to the right direction
+float pitch = 0.0f;
+float lastX = 400.0f;
+float lastY = 300.0f;
+
 //Convertes loaded image into texture
 int LoadTexture()
 {
@@ -55,12 +73,87 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     std::cout << "Re-sizing window" << std::endl;
 }
 
-//Input handler function
-void processInput(GLFWwindow* window)
+//Handles mouse movement
+void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 {
+    //Stops a big jump that happens when you first press into the screen
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    //calculates the mouse movement between the current and last frame
+    float xOffset = xpos - lastX;
+    float yOffset = lastY - ypos;
+    //sets the mouse position as the new last mouse positions
+    lastX = xpos;
+    lastY = ypos;
+
+    //Sets and multiplies the mouse movement by the sensitivity
+    const float sensitivity = 0.1f;
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
+
+    //Sets the pitch and yaw of the camera using the offset of the mouse since the last frame
+    yaw += xOffset;
+    pitch += yOffset;
+
+    //Constrains the y movement so you cannot flip around in circles by looking up or down too much
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    //creates a direction vector
+    glm::vec3 direction;
+    //Maths for converting the mouse movement into the proper camera direction
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    //normalizes and assigns the direction the mouse to where the camera should be facing
+    cameraFront = glm::normalize(direction);
+}
+
+//Input handler function - camera controls and view matrix
+void processInput(GLFWwindow* window, int shaderProgram)
+{
+    const float cameraSpeed = 2.5f * deltaTime;
     //Closes window on escape press
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        cameraPos += cameraSpeed * cameraFront;
+        std::cout << "Pressing W" << std::endl;
+    } 
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        cameraPos -= cameraSpeed * cameraFront;
+        std::cout << "Pressing S" << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        std::cout << "Pressing A" << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        std::cout << "Pressing D" << std::endl;
+    }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, true);
+    }
+
+    //Set the view matrix using the camera variables
+    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    glUniformMatrix4fv(
+        viewLoc, //Location of the global/uniform variable
+        1, //How many matrices to send
+        GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
+        glm::value_ptr(view)); //Actual matrix data, converted to usable data using value_ptr
 }
 
 int main()
@@ -99,6 +192,15 @@ int main()
 
     //Calls window resize function on window resize
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    //Handles mouse movement, x pos and y pos are the current mouse positions
+    void mouse_callback(GLFWwindow * window, double xpos, double ypos);
+
+    //When mouse is moved call mouse_callback function
+    glfwSetCursorPosCallback(window, mouse_callback);
+
+    //Mouse stays in centre of the window and hides it
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Vertices for the cube
     float vertices[] = {
@@ -163,10 +265,9 @@ int main()
     };
 
     //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     //binds the VAO
     glBindVertexArray(VAO);
@@ -175,11 +276,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    //Binds EBO buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //Copy the indices into EBO buffer obj
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //Creates shader program object with vertex shader and fragment shader linked to it
     int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");;
@@ -215,24 +311,16 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    ////Set the camera position, z axis is moving through screen towards you so if you want the camera to move back have to move forward on the z axis
-    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    ////Points to the origin of the scene
-    //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    ////Sets the camera direction by normalizing the vector of the camera target from the camera position
-    //glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-    ////Gets the up direction of the world
-    //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    ////Cross product of the direction vector and the up vector is how you get the positive x axis of the camera
-    //glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-    ////Cross product of the right and direction vector gets the up axis
-    //glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
     {
+        //Gets delta time to use for smoothing out camera movement
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         //Gets inputs
-        processInput(window);
+        processInput(window, shaderProgram);
 
         //Want to call rendering commands every frame so they go here:
         //clears the screen and sets it as the color in the glClearColor function
@@ -243,21 +331,11 @@ int main()
 
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
-        
-        //HandleTransform(shaderProgram);
-
-        glm::mat4 view = glm::mat4(1.0f);
-        const float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-        int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
         //Binds the vertex array object
         glBindVertexArray(VAO);
-        //Handles drawingFirst param specifies the draw mode, 2nd is the number of vertices to draw,
-        //third is the type of indices, fourth is the offset
+
+        //iterates through 10 cubes and renders them in different positions and angles
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
@@ -277,8 +355,6 @@ int main()
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-        
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
