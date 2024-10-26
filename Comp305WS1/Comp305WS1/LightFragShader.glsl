@@ -8,7 +8,11 @@ uniform vec3 lightColor;
 
 void main()
 {
-    //Fragment shader only has one output which is the color output
-    //multiply the light source color with the objects reflected color to get an accurate color outpu
-    FragColor = vec4(lightColor * objectColor, 1.0);
-} 
+    //ambient light
+    float ambientStrength = 0.1;
+    vec3 ambient = ambientStrength * lightColor;
+
+    //add the ambient light to the objects color
+    vec3 result = ambient * objectColor;
+    FragColor = vec4(result, 1.0);
+}  

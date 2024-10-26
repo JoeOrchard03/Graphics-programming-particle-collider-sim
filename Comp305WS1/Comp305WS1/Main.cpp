@@ -107,8 +107,6 @@ void processInput(GLFWwindow* window)
     {
         glfwSetWindowShouldClose(window, true);
     }
-
-    
 }
 
 int main()
@@ -264,9 +262,11 @@ int main()
 
         //Use light source program
         glUseProgram(lightShaderProgram);
+        //Sets the color of the object
         glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f); 
         int objectColorLoc = glGetUniformLocation(lightShaderProgram, "objectColor");
         glUniform3fv(objectColorLoc, 1, glm::value_ptr(objectColor));
+        //Sets the color of the light source
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
         int lightColorLoc = glGetUniformLocation(lightShaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
@@ -274,9 +274,12 @@ int main()
         
         //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,100.0f);
+        //creates view martrix (space seen from camera pov)
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        //Creates model matrix (transformations to apply to objects)
         glm::mat4 model = glm::mat4(1.0f);
 
+        //Set uniform variables in the lighting vertex shader
         int projectionLoc = glGetUniformLocation(lightShaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -287,11 +290,13 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
         glBindVertexArray(VAO);
+        //Draws cube
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
 
+        //Sets uniform variables in the regular vertex shader
         projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
