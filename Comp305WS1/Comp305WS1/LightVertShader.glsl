@@ -3,10 +3,12 @@
 //Declare all input vertex attirbutes, each vertex is made of a set of 3d coordinates which is why you use vector 3, also set the location of the variable
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
 
 //Output the frag position to the fragment shader
 out vec3 FragPos;
 out vec3 Normal;
+out vec2 TexCoords;
 
 uniform mat4 model;
 uniform mat4 view; 
@@ -18,6 +20,7 @@ void main()
     //Gets the fragment position in world space
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = aNormal;
+    TexCoords = aTexCoords;
 
     gl_Position = projection * view * vec4(aPos, 1.0);
 }

@@ -1,9 +1,11 @@
 #version 330 core
+//Declare output variables using "out"
+out vec4 FragColor;
 
 //material struct contains the necessary material values that affect the lighting
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
+    //sampler2D will let us make a diffuse map so can have different diffuse values for different materials
+    sampler2D diffuse;
     vec3 specular;
     float shininess;
 };
@@ -21,32 +23,28 @@ struct Light{
 
 uniform Light light;
 
-//Declare output variables using "out"
-out vec4 FragColor;
-
 //Get the normals of the cube
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 TexCoords;
 
-//Position of the light source
-uniform vec3 lightPos;  
-uniform vec3 lightColor;
-uniform vec3 objectColor;
 //Position of the camera
 uniform vec3 viewPos;
 
 void main()
 {
     //ambient light
-    vec3 ambient = material.ambient * light.ambient;
+    //Get the fragments diffuse value from the texture and add it to the calc
+    vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
 
     //diffuse light
     vec3 norm = normalize(Normal);
     //Gets the direction between the light and the fragment
-    vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos);
     //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = (diff * material.diffuse) * light.diffuse;
+    //Get the fragments diffuse value from the texture and add it to the calc
+    vec3 diffuse = diff * light.diffuse * texture(material.diffuse, TexCoords).rgb;
 
     //Specular light
     vec3 viewDir = normalize(viewPos - FragPos);
