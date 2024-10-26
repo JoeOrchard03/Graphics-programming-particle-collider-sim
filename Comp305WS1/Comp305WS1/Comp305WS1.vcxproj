@@ -579,6 +579,8 @@
     <None Include="Dependencies\include\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\include\glm\gtx\wrap.inl" />
     <None Include="FragmentShader.glsl" />
+    <None Include="LightFragShader.glsl" />
+    <None Include="LightVertShader.glsl" />
     <None Include="VertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>

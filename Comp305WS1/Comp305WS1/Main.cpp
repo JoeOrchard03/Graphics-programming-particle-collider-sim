@@ -25,46 +25,8 @@ float pitch = 0.0f;
 float lastX = 400.0f;
 float lastY = 300.0f;
 
-//Convertes loaded image into texture
-int LoadTexture()
-{
-    int width, height, nrChannels;
-    //Uses the file path to gets the texture, stbi_load will then fill the other variables with the image's width, height and number of color channels
-    unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-
-    //Creates and binds a texture object
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    //if image data is opened successfully
-    if (data)
-    {
-        //Generate a texture using image data
-        glTexImage2D(
-            GL_TEXTURE_2D, //Sets texture target,
-            0, //Specifies mip map level, 0 is the base level
-            GL_RGB, //Tells OpenGL the format to store the texture in
-            width, //width from the loaded image
-            height, //height from the loaded image
-            0, //Legacy settings
-            GL_RGB, //Format of the image
-            GL_UNSIGNED_BYTE, //Data type of the image
-            data); //Actual image data
-
-        //Generates mip map for the loaded texture
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        std::cout << "Successfully converted image into texture and loaded it" << std::endl;
-    }
-    else
-    {
-        std::cout << "Failed to convert image into texture or load it" << std::endl;
-    }
-    //Can remove the image after conversion into texture to help performance
-    stbi_image_free(data);
-    return texture;
-}
+//Light source position:
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 //Called on resizing of the window by user
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -117,7 +79,7 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 }
 
 //Input handler function - camera controls and view matrix
-void processInput(GLFWwindow* window, int shaderProgram)
+void processInput(GLFWwindow* window)
 {
     const float cameraSpeed = 2.5f * deltaTime;
     //Closes window on escape press
@@ -146,14 +108,7 @@ void processInput(GLFWwindow* window, int shaderProgram)
         glfwSetWindowShouldClose(window, true);
     }
 
-    //Set the view matrix using the camera variables
-    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-    int viewLoc = glGetUniformLocation(shaderProgram, "view");
-    glUniformMatrix4fv(
-        viewLoc, //Location of the global/uniform variable
-        1, //How many matrices to send
-        GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
-        glm::value_ptr(view)); //Actual matrix data, converted to usable data using value_ptr
+    
 }
 
 int main()
@@ -202,114 +157,94 @@ int main()
     //Mouse stays in centre of the window and hides it
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    //Creates shader program objects with vertex shaders and fragment shaders linked to them
+    int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");
+    int lightShaderProgram = LoadShaders("LightVertShader.glsl", "LightFragShader.glsl");
+
+    glEnable(GL_DEPTH_TEST);
+
     //Vertices for the cube
     float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
 
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
 
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f, -0.5f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+    -0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
     };
 
-    glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
-    glm::vec3(2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3(2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3(1.3f, -2.0f, -2.5f),
-    glm::vec3(1.5f,  2.0f, -2.5f),
-    glm::vec3(1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-
-    //Creates a Vertex buffer object that can store vertices, a Vertex Array object that stores the states of buffer objects, and an element buffer object for storing indices
+    //Creates a Vertex buffer object that can store vertices and a Vertex Array object that stores the states of buffer objects
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //Copies vertices into the VBO buffer obj
+    glBufferData(GL_ARRAY_BUFFER,
+        sizeof(vertices), //takes the size of data, can use sizeof(vertices)
+        vertices, //third param is data being sent
+        GL_STATIC_DRAW); //how the GPU should manage the data out of stream draw, static draw and dynamic draw
+
     //binds the VAO
     glBindVertexArray(VAO);
-    
-    //binds the VBO and copies vertices into the VBO buffer obj
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //This function copies user data into the bound buffer, takes the size of data, can use sizeof(vertices), third param is data being sent and fourth is how the GPU should manage the data out of stream draw, static draw and dynamic draw, stream is set once and used a few times, static is set once and used a lot, dynamic is set a lot and used a lot, since triangle is not moving but is needed to be drawn every frame that is the one being used
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    //Creates shader program object with vertex shader and fragment shader linked to it
-    int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");;
-
-    //Tells OpenGL how to interpret the vertex data, first param specifies which vertex attribute to configure
-    //2nd specifies size of the vertex which is a v3 so has 3 values
-    //3rd specifies type of data
-    //4th says if you want to normalize the vertex
-    //5th is the stride that says the space between vertex attributes
-    //6th is the offset of where the position data begins
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    //Tells OpenGL how to interpret the vertex data
+    glVertexAttribPointer(
+        0, // which vertex attribute to configure
+        3, // specifies size of the vertex which is a v3 so has 3 values
+        GL_FLOAT, // specifies type of data
+        GL_FALSE, // if you want to normalize the vertex
+        3 * sizeof(float), // is the stride that says the space between vertex attributes
+        (void*)0); // is the offset of where the position data begins
     //Enables the vertex attribute at the location specified
     glEnableVertexAttribArray(0);
 
-    //Configures the texture attribute
-    glVertexAttribPointer(1,2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    //new VAO for the light source object
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
 
-    glUseProgram(shaderProgram);
+    //Bind vbo
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    //Load texture
-    int texture = LoadTexture();
-
-    //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
-    glm::mat4 projection;
-    projection = glm::perspective(
-        glm::radians(45.0f), //FOV
-        800.0f / 600.0f, //Aspect ratio (viewport size)
-        0.1f, //Near plane of the frustum
-        100.0f); //Far plane of the frustum
-    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-    glEnable(GL_DEPTH_TEST);
+    //Tells OpenGL how to interpret the vertex data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); 
+    glEnableVertexAttribArray(0);
 
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
@@ -320,41 +255,58 @@ int main()
         lastFrame = currentFrame;
 
         //Gets inputs
-        processInput(window, shaderProgram);
+        processInput(window);
 
         //Want to call rendering commands every frame so they go here:
         //clears the screen and sets it as the color in the glClearColor function
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        //Use light source program
+        glUseProgram(lightShaderProgram);
+        glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f); 
+        int objectColorLoc = glGetUniformLocation(lightShaderProgram, "objectColor");
+        glUniform3fv(objectColorLoc, 1, glm::value_ptr(objectColor));
+        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        int lightColorLoc = glGetUniformLocation(lightShaderProgram, "lightColor");
+        glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
+        //Binds the vertex array object
+        
+        //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,100.0f);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 model = glm::mat4(1.0f);
+
+        int projectionLoc = glGetUniformLocation(lightShaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        int viewLoc = glGetUniformLocation(lightShaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view)); 
+
+        int modelLoc = glGetUniformLocation(lightShaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //Uses the shader program that has the vertex and fragment shaders linked
         glUseProgram(shaderProgram);
 
-        //Binds the vertex array object
-        glBindVertexArray(VAO);
+        projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        //iterates through 10 cubes and renders them in different positions and angles
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            if (i == 0)
-            {
-                angle = rand() % 1 + 90;
-            }
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            int modelLoc = glGetUniformLocation(shaderProgram, "model");
-            glUniformMatrix4fv(
-                modelLoc, //Location of the global/uniform variable
-                1, //How many matrices to send
-                GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
-                glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
+        //Set the view matrix using the camera variables
+        viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
@@ -362,7 +314,6 @@ int main()
         glfwPollEvents();
     }
 
-    //deletes and clears all used resources to avoid memory leaks and performance issues
     glfwTerminate();
     return 0;
 }
