@@ -156,54 +156,55 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Creates shader program objects with vertex shaders and fragment shaders linked to them
-    int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");
     int lightShaderProgram = LoadShaders("LightVertShader.glsl", "LightFragShader.glsl");
+    int shaderProgram = LoadShaders("VertexShader.glsl", "FragmentShader.glsl");
 
     glEnable(GL_DEPTH_TEST);
 
     //Vertices for the cube
     float vertices[] = {
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
+    //Vertex positions    //Normal positions
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     //Creates a Vertex buffer object that can store vertices and a Vertex Array object that stores the states of buffer objects
@@ -221,16 +222,20 @@ int main()
     //binds the VAO
     glBindVertexArray(VAO);
 
-    //Tells OpenGL how to interpret the vertex data
+    //Tells OpenGL how to interpret the vertex data - vertex position attributes
     glVertexAttribPointer(
         0, // which vertex attribute to configure
         3, // specifies size of the vertex which is a v3 so has 3 values
         GL_FLOAT, // specifies type of data
         GL_FALSE, // if you want to normalize the vertex
-        3 * sizeof(float), // is the stride that says the space between vertex attributes
+        6 * sizeof(float), // is the stride that says the space between vertex attributes
         (void*)0); // is the offset of where the position data begins
     //Enables the vertex attribute at the location specified
     glEnableVertexAttribArray(0);
+
+    // normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     //new VAO for the light source object
     unsigned int lightVAO;
@@ -240,8 +245,7 @@ int main()
     //Bind vbo
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    //Tells OpenGL how to interpret the vertex data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); 
     glEnableVertexAttribArray(0);
 
     //Runs until the window is told to close
@@ -257,7 +261,7 @@ int main()
 
         //Want to call rendering commands every frame so they go here:
         //clears the screen and sets it as the color in the glClearColor function
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //Use light source program
@@ -267,11 +271,43 @@ int main()
         int objectColorLoc = glGetUniformLocation(lightShaderProgram, "objectColor");
         glUniform3fv(objectColorLoc, 1, glm::value_ptr(objectColor));
         //Sets the color of the light source
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+
         int lightColorLoc = glGetUniformLocation(lightShaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-        //Binds the vertex array object
+        int lightPosLoc = glGetUniformLocation(lightShaderProgram, "lightPos");
+        glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+        int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
+        glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
+
+        int materialAmbientLoc = glGetUniformLocation(lightShaderProgram, "material.ambient");
+        glUniform3fv(materialAmbientLoc, 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+
+        int materialDiffuseLoc = glGetUniformLocation(lightShaderProgram, "material.diffuse");
+        glUniform3fv(materialDiffuseLoc, 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+
+        int materialSpecularLoc = glGetUniformLocation(lightShaderProgram, "material.specular");
+        glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+
+        int materialShininessLoc = glGetUniformLocation(lightShaderProgram, "material.shininess");
+        glUniform1f(materialShininessLoc, 32.0f);
         
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
+        int lightAmbientLoc = glGetUniformLocation(lightShaderProgram, "light.ambient");
+        glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(glm::vec3(ambientColor)));
+
+        int lightDiffuseLoc = glGetUniformLocation(lightShaderProgram, "light.diffuse");
+        glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(glm::vec3(diffuseColor)));
+
+        int lightSpecularLoc = glGetUniformLocation(lightShaderProgram, "light.specular");
+        glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+
+
         //Creates a projection matrix which gives things perspective (makes things further away appear smaller) by creating a frustrum (area that renders things inside and does not render things outside)
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,100.0f);
         //creates view martrix (space seen from camera pov)
