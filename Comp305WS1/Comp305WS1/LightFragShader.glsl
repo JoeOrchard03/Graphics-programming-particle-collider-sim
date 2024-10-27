@@ -14,6 +14,7 @@ uniform Material material;
 
 //Light struct controls the light
 struct Light{
+    //Direction of a global light source (like the sun) instead of a position of a point light
     vec3 direction;
 
     vec3 ambient;
@@ -39,7 +40,7 @@ void main()
 
     //diffuse light
     vec3 norm = normalize(Normal);
-    //Gets the direction between the light and the fragment
+    //Gets the opposite direction of the light direction 
     vec3 lightDir = normalize(-light.direction);
     //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
     float diff = max(dot(norm, lightDir), 0.0);

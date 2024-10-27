@@ -353,6 +353,7 @@ int main()
 
         //Use light source program
         glUseProgram(lightShaderProgram);
+        //Defines the direction of the global light source
         int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.direction");
         glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(-0.2f, -1.0f, -0.3f)));
         int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
