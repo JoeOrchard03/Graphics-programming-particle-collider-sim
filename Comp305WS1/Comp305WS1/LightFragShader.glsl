@@ -15,11 +15,16 @@ uniform Material material;
 //Light struct controls the light
 struct Light{
     //Direction of a global light source (like the sun) instead of a position of a point light
-    vec3 direction;
+    vec3 position;
 
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    //Variables for attenuation formula (makes light get dimmer further from the source)
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 uniform Light light;
@@ -40,8 +45,8 @@ void main()
 
     //diffuse light
     vec3 norm = normalize(Normal);
-    //Gets the opposite direction of the light direction 
-    vec3 lightDir = normalize(-light.direction);
+    //Gets the direction of the 
+    vec3 lightDir = normalize(light.position - FragPos);
     //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
     float diff = max(dot(norm, lightDir), 0.0);
     //Get the fragments diffuse value from the texture and add it to the calc
@@ -54,6 +59,16 @@ void main()
     //this affects the sharpness of the reflection
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
+
+    //Attenuation (makes light further from point light dimmer)
+    float distance = length(light.position - FragPos);
+    //Attentation formula
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+    //Applies attenuation to light effects:
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
 
     //applies the result of all the lighting methods to the objects color
     vec3 result = ambient + diffuse + specular;

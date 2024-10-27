@@ -25,6 +25,9 @@ float pitch = 0.0f;
 float lastX = 400.0f;
 float lastY = 300.0f;
 
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 //Convertes loaded image into texture
 int LoadTexture(char const* path)
 {
@@ -354,8 +357,8 @@ int main()
         //Use light source program
         glUseProgram(lightShaderProgram);
         //Defines the direction of the global light source
-        int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.direction");
-        glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(-0.2f, -1.0f, -0.3f)));
+        int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.position");
+        glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(lightPos)));
         int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
         glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
         
@@ -367,6 +370,15 @@ int main()
 
         int lightSpecularLoc = glGetUniformLocation(lightShaderProgram, "light.specular");
         glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+
+        int lightConstantLoc = glGetUniformLocation(lightShaderProgram, "light.constant");
+        glUniform1f(lightAmbientLoc, 1.0f);
+
+        int lightLinearLoc = glGetUniformLocation(lightShaderProgram, "light.linear");
+        glUniform1f(lightLinearLoc, 0.09f);
+
+        int lightQuadraticLoc = glGetUniformLocation(lightShaderProgram, "light.quadratic");
+        glUniform1f(lightQuadraticLoc, 0.032f);
 
         int materialShininessLoc = glGetUniformLocation(lightShaderProgram, "material.shininess");
         glUniform1f(materialShininessLoc, 64.0f);
@@ -411,6 +423,22 @@ int main()
                 glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        // also draw the lamp object
+        glUseProgram(shaderProgram);
+        projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
