@@ -19,8 +19,8 @@ void main()
     //Set the output of the vertex shader using the position of the vector and giving it a w value of 1
     //Gets the fragment position in world space
     FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = aNormal;
+    Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoords = aTexCoords;
 
-    gl_Position = projection * view * vec4(aPos, 1.0);
+    gl_Position = projection * view * vec4(FragPos, 1.0);
 }

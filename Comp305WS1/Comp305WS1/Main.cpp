@@ -25,9 +25,6 @@ float pitch = 0.0f;
 float lastX = 400.0f;
 float lastY = 300.0f;
 
-//Light source position:
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 //Convertes loaded image into texture
 int LoadTexture(char const* path)
 {
@@ -268,6 +265,20 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
+    //10 cube positions
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     //Creates a Vertex buffer object that can store vertices and a Vertex Array object that stores the states of buffer objects
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -342,8 +353,8 @@ int main()
 
         //Use light source program
         glUseProgram(lightShaderProgram);
-        int lightPositionLoc = glGetUniformLocation(lightShaderProgram, "light.position");
-        glUniform3fv(lightPositionLoc, 1, glm::value_ptr(glm::vec3(lightPos)));
+        int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.direction");
+        glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(-0.2f, -1.0f, -0.3f)));
         int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
         glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
         
@@ -385,28 +396,20 @@ int main()
         glBindTexture(GL_TEXTURE_2D, specularMap);
 
         glBindVertexArray(VAO);
-        //Draws cube
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //Uses the shader program that has the vertex and fragment shaders linked
-        glUseProgram(shaderProgram);
-
-        //Sets uniform variables in the regular vertex shader
-        projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-        //Set the view matrix using the camera variables
-        viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        modelLoc = glGetUniformLocation(shaderProgram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            int modelLoc = glGetUniformLocation(lightShaderProgram, "model");
+            glUniformMatrix4fv(
+                modelLoc, //Location of the global/uniform variable
+                1, //How many matrices to send
+                GL_FALSE, //If you want to transpose the matrix (swapping colums and rows) leave as false
+                glm::value_ptr(model)); //Actual matrix data, converted to usable data using value_ptr
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         //Swaps the color buffer
         glfwSwapBuffers(window);
