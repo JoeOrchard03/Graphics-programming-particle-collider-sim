@@ -14,132 +14,21 @@
 
 #include "Shader.h"
 #include "Vertex.h"
+#include "LoadModel.h"
 #include <random>
 
+//Window
+SDL_Window* window;
 
-bool LoadTeaPot(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
-{
-	//Calls the asset importer library
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
-													   aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
-	//block based off learningspace tutorials
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
-		return false;
-	}
-	//JUST A DEMO, assuming just one texture! You can use other textures, see documentation!
-	//http://assimp.sourceforge.net/lib_html/structai_material.html
-	bool hasTexture = false;
-	aiString texPath("");
-	if (scene->HasMaterials()) {
-		aiMaterial* material = scene->mMaterials[0];
-		hasTexture = material && material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) >= 0;
-	}
-	texturePath = texPath.C_Str(); //converts to const char
-	//JUST A DEMO, assuming one mesh!
-	aiMesh* mesh = scene->mMeshes[0];
-	if (!mesh) return false;
+//Global variables for loading models
+//Vertices are the points that make up the shape
+std::vector<Vertex> vertices;
+//Indices control which vertices link to form a shape
+std::vector<unsigned> indices;
+//Texture
+std::string texturePath;
 
-	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
-	ModelVertices.clear();
-	ModelIndices.clear();
-
-	//Assigns new vertices and indices from the fbx file
-	ModelVertices.resize(mesh->mNumVertices);
-	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
-	for(unsigned i = 0; i < mesh->mNumVertices; i++)
-	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
-
-		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
-		}
-
-		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
-		}
-	}
-
-	for (unsigned i = 0; i < mesh->mNumFaces; i++) 
-	{
-		aiFace& face = mesh->mFaces[i];
-		for (unsigned j = 0; j < face.mNumIndices; j++) 
-		{
-			ModelIndices.push_back(face.mIndices[j]);
-		}
-	}
-
-	return !(ModelVertices.empty() || ModelIndices.empty());
-}
-
-bool LoadCrate(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
-{
-	//Calls the asset importer library
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
-		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
-	//block based off learningspace tutorials
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
-		return false;
-	}
-	//JUST A DEMO, assuming just one texture! You can use other textures, see documentation!
-	//http://assimp.sourceforge.net/lib_html/structai_material.html
-	bool hasTexture = false;
-	aiString texPath("");
-	if (scene->HasMaterials()) {
-		aiMaterial* material = scene->mMaterials[0];
-		hasTexture = material && material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) >= 0;
-	}
-	texturePath = texPath.C_Str(); //converts to const char
-	//JUST A DEMO, assuming one mesh!
-	aiMesh* mesh = scene->mMeshes[0];
-	if (!mesh) return false;
-
-	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
-	ModelVertices.clear();
-	ModelIndices.clear();
-
-	//Assigns new vertices and indices from the fbx file
-	ModelVertices.resize(mesh->mNumVertices);
-	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
-	for (unsigned i = 0; i < mesh->mNumVertices; i++)
-	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
-
-		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
-		}
-
-		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
-		}
-	}
-
-	for (unsigned i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace& face = mesh->mFaces[i];
-		for (unsigned j = 0; j < face.mNumIndices; j++)
-		{
-			ModelIndices.push_back(face.mIndices[j]);
-		}
-	}
-
-	return !(ModelVertices.empty() || ModelIndices.empty());
-}
-
-int main(int argc, char ** argsv)
+SDL_Window* CreateWindow()
 {
 	//Initialises the SDL Library, passing in SDL_INIT_VIDEO to only initialise the video subsystems
 	//https://wiki.libsdl.org/SDL_Init
@@ -148,13 +37,13 @@ int main(int argc, char ** argsv)
 		//Display an error message box
 		//https://wiki.libsdl.org/SDL_ShowSimpleMessageBox
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_Init failed", SDL_GetError(), NULL);
-		return 1;
+		return 0;
 	}
-	
+
 	//Create a window, note we have to free the pointer returned using the DestroyWindow Function
 	//https://wiki.libsdl.org/SDL_CreateWindow
 	//Creates screen to view image with its dimensions uses a pointer so it does not duplicate, can change windows settings using different values
-	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 720, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 720, SDL_WINDOW_OPENGL);
 	//Checks to see if the window has been created, the pointer will have a value of some kind, if not it did not work
 	if (window == nullptr)
 	{
@@ -163,31 +52,44 @@ int main(int argc, char ** argsv)
 		//Close the SDL Library
 		//https://wiki.libsdl.org/SDL_Quit
 		SDL_Quit();
-		return 1;
+		return 0;
 	}
 
-	//Vertices are the points that make up the shape
-	std::vector<Vertex> vertices;
-	//Indices control which vertices link to form a shape
-	std::vector<unsigned> indices;
-	//Texture
-	std::string texturePath;
+	return window;
+}
 
-	//we can check for box here too!
-	if (!LoadCrate("Crate.fbx", vertices, indices, texturePath))
+void IntializeSDLVersion()
+{
+	//Set SDL_GL version
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+}
+
+void IntializeGlew()
+{
+	//Initialize GLEW, glew lets sdl and open gl work together better
+	glewExperimental = GL_TRUE;
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR LOADING MODEL", "", NULL);
-		//TODO: clean up here
-		return 1;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to initialise GLEW", (char*)glewGetErrorString(glewError), NULL);
 	}
+}
 
-	if (!LoadTeaPot("utah-teapot.fbx", vertices, indices, texturePath))
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR LOADING MODEL", "", NULL);
-		//TODO: clean up here
-		return 1;
-	}
 
+int main(int argc, char ** argsv)
+{
+	//Initalize SDL version
+	IntializeSDLVersion();
+
+	//Create window
+	window = CreateWindow();
+
+	//Load model
+	LoadModel("Crate.fbx", vertices, indices, texturePath);
+
+	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
 	//only load texture path if exists
@@ -201,21 +103,10 @@ int main(int argc, char ** argsv)
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	//Set SDL_GL version
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	//Initialize GLEW, glew lets sdl and open gl work together better
-	glewExperimental = GL_TRUE;
-	GLenum glewError = glewInit();
-	if (glewError != GLEW_OK)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to initialise GLEW", (char*)glewGetErrorString(glewError), NULL);
-	}
+	//Initalize Glew
+	IntializeGlew();
 
 	//create Vertex Array Object, array that contains vertices (collection of floats that represent pos in 3D space)
 	GLuint VertexArrayID;
