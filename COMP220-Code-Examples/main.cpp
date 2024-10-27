@@ -107,66 +107,41 @@ int main(int argc, char ** argsv)
 
 	//Initalize Glew
 	IntializeGlew();
+	
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
-	//create Vertex Array Object, array that contains vertices (collection of floats that represent pos in 3D space)
-	GLuint VertexArrayID;
-	//generate vertex array objects
-	glGenVertexArrays(1, &VertexArrayID); //first param is number of object, 2nd is object
-	//bind gl calls to VertexArrayID
-	glBindVertexArray(VertexArrayID);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-
-	//storage area for our buffer data
-	GLuint vertexBuffer;
-	//generate 1 buffer, put the resulting identifier in vertexBuffer
-	glGenBuffers(1, &vertexBuffer);
-	//bind the buffer so the operations of GLBuffer apply to vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	//set our current buffer target data to the g_buffer_data object
-	//static draw means we are making a static object - we define the object once and do not change it (similar to static in Unity/Unreal)
-	//see GL documentation for other draw types
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-
-	glEnableVertexAttribArray(0); //attribute in location 0
-	glVertexAttribPointer(
-		0,			//attribute 0, must match the layout in the shader
-		3,			//size (of attribute - 3D vector, so 3)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)0	//array buffer offset (how far from start of array buffer does first vertex start?)
-	);
-
-	glEnableVertexAttribArray(1); //attribute in location 0
-	glVertexAttribPointer(
-		1,			//attribute 0, must match the layout in the shader
-		3,			//size (of attribute - 3D vector, so 3)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)(3 * sizeof(GL_FLOAT))	//array buffer offset (how far from start of array buffer does first vertex start?)
-	);
-
-	glEnableVertexAttribArray(2); //attribute in location 1
-	glVertexAttribPointer(
-		2,			//attribute 1, must match the layout in the shader
-		2,			//size (of attribute - 2D vector, so 2)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)(6 * sizeof(GL_FLOAT))	//NOTE: Starts after first 3 float values!
-	);
-	
-
-
-	//modified from: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-9-vbo-indexing/
-	// Generate a buffer for the indices
-	GLuint elementbuffer;
-	glGenBuffers(1, &elementbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
+	GLuint shaderProgram = LoadShaders("BasicVert.glsl", "BasicFrag.glsl");
+
+	//Tells OpenGL how to interpret the vertex data
+	glVertexAttribPointer(
+		0,			//Specifies which attribute to configure
+		3,			//size (of attribute - 3D vector, so 3)
+		GL_FLOAT,	//data type
+		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
+		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beginning of one vertex to the next)
+		(void*)0	//offset (how far from start of array buffer does first vertex start?)
+	);
+	//Enables the vertex attribute at the specified location
+	glEnableVertexAttribArray(0);
+
+	//Configures 2nd attribute
+	glVertexAttribPointer(1, 3,	GL_FLOAT, GL_FALSE,	sizeof(Vertex), (void*)(3 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(1); //attribute in location 0
+
+	//Configures 3rd attribute
+	glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(6 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(2); 
 
 	// Create one OpenGL texture
 	GLuint textureID;
@@ -196,7 +171,7 @@ int main(int argc, char ** argsv)
 	}
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
-	GLuint programID = LoadShaders("BasicVert.glsl", 
+	shaderProgram = LoadShaders("BasicVert.glsl", 
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
@@ -213,13 +188,13 @@ int main(int argc, char ** argsv)
 	//Camera movement and rotation speed
 	const float walkspeed = 0.2f, rotSpeed = 0.1f;
 	//Gets the location of the object beginning at a certain point
-	unsigned int transformLoc = glGetUniformLocation(programID, "transform");
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
 	//Sets the colour of the object, changes default colour before texture is applied.
-	unsigned int objColourLoc = glGetUniformLocation(programID, "objColour");
+	unsigned int objColourLoc = glGetUniformLocation(shaderProgram, "objColour");
 	//The object that we are loading in
-	unsigned int modelLoc = glGetUniformLocation(programID, "model");
+	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
 	//Represents where the camera is in 3D space
-	unsigned int viewPosLoc = glGetUniformLocation(programID, "viewPos");
+	unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
@@ -229,8 +204,8 @@ int main(int argc, char ** argsv)
 		1.f, 1.f, 1.f // lightColour - The colour of the light in rgb values
 	};
 	GLuint bindingPoint = 1, uniformBuffer, blockIndex;
-	blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
-	glUniformBlockBinding(programID, blockIndex, bindingPoint);
+	blockIndex = glGetUniformBlockIndex(shaderProgram, "LightBlock");
+	glUniformBlockBinding(shaderProgram, blockIndex, bindingPoint);
 	glGenBuffers(1, &uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightValues),
@@ -394,7 +369,7 @@ int main(int argc, char ** argsv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//use imported shader program(s)
-		glUseProgram(programID);
+		glUseProgram(shaderProgram);
 
 		//Handles rotation of the cube
 		view = glm::lookAt(
@@ -424,7 +399,7 @@ int main(int argc, char ** argsv)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Draw object from file
-		glBindVertexArray(VertexArrayID);
+		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		
@@ -445,13 +420,13 @@ int main(int argc, char ** argsv)
 
 	//clear memory before exit
 	glDisableVertexAttribArray(0);
-	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 
 	SDL_FreeSurface(image);
 	SDL_GL_DeleteContext(glContext);
 
-	glDeleteProgram(programID);
+	glDeleteProgram(shaderProgram);
 	SDL_GL_DeleteContext(glContext);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
 	//https://wiki.libsdl.org/SDL_DestroyWindow
