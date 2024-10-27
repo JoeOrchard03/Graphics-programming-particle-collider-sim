@@ -1,12 +1,13 @@
-#include <GLFW/glfw3.h>
-#include <iostream>
 #include <glad/glad.h>
-#include "Shaders.h"
+#include <GLFW/glfw3.h>
 #include "stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <iostream>
+#include "Shaders.h"
 
 //Camera variables
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
