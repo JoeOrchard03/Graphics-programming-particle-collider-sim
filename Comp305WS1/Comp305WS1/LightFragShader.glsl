@@ -6,7 +6,7 @@ out vec4 FragColor;
 struct Material {
     //sampler2D will let us make a diffuse map so can have different diffuse values for different materials
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
     float shininess;
 };
 
@@ -35,7 +35,7 @@ void main()
 {
     //ambient light
     //Get the fragments diffuse value from the texture and add it to the calc
-    vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
     //diffuse light
     vec3 norm = normalize(Normal);
@@ -44,7 +44,7 @@ void main()
     //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
     float diff = max(dot(norm, lightDir), 0.0);
     //Get the fragments diffuse value from the texture and add it to the calc
-    vec3 diffuse = diff * light.diffuse * texture(material.diffuse, TexCoords).rgb;
+    vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords)); 
 
     //Specular light
     vec3 viewDir = normalize(viewPos - FragPos);
@@ -52,7 +52,7 @@ void main()
     //get the dot product of view direction and reflect direction make sure it is not negative using max and raise it to the power of 32
     //this affects the sharpness of the reflection
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = (material.specular * spec) * light.specular;
+    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
 
     //applies the result of all the lighting methods to the objects color
     vec3 result = ambient + diffuse + specular;

@@ -315,10 +315,14 @@ int main()
     glEnableVertexAttribArray(0);
 
     int diffuseMap = LoadTexture("container2.png");
+    int specularMap = LoadTexture("container2_specular.png");
 
     glUseProgram(lightShaderProgram);
     int materialDiffuseLoc = glGetUniformLocation(lightShaderProgram, "material.diffuse");
-    glUniform1f(materialDiffuseLoc, 0.0f);
+    glUniform1i(materialDiffuseLoc, 0);
+
+    int materialSpecularLoc = glGetUniformLocation(lightShaderProgram, "material.specular");
+    glUniform1i(materialSpecularLoc, 1);
 
     //Runs until the window is told to close
     while (!glfwWindowShouldClose(window))
@@ -352,9 +356,6 @@ int main()
         int lightSpecularLoc = glGetUniformLocation(lightShaderProgram, "light.specular");
         glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
 
-        int materialSpecularLoc = glGetUniformLocation(lightShaderProgram, "material.specular");
-        glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
-
         int materialShininessLoc = glGetUniformLocation(lightShaderProgram, "material.shininess");
         glUniform1f(materialShininessLoc, 64.0f);
 
@@ -378,6 +379,10 @@ int main()
         // bind diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
 
         glBindVertexArray(VAO);
         //Draws cube
