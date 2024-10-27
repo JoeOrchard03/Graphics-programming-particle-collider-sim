@@ -357,8 +357,13 @@ int main()
         //Use light source program
         glUseProgram(lightShaderProgram);
         //Defines the direction of the global light source
-        int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.position");
-        glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(lightPos)));
+        int lightPositionLoc = glGetUniformLocation(lightShaderProgram, "light.position");
+        glUniform3fv(lightPositionLoc, 1, glm::value_ptr(glm::vec3(cameraPos)));
+        int lightDirectionLoc = glGetUniformLocation(lightShaderProgram, "light.direction");
+        glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(cameraFront)));
+        int lightCutOffLoc = glGetUniformLocation(lightShaderProgram, "light.cutOff");
+        glUniform1f(lightCutOffLoc, glm::cos(glm::radians(12.5f)));
+
         int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
         glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
         

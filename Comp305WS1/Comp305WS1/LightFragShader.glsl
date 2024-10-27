@@ -14,8 +14,12 @@ uniform Material material;
 
 //Light struct controls the light
 struct Light{
-    //Direction of a global light source (like the sun) instead of a position of a point light
+    //Position of light
     vec3 position;
+    //Direction light is facing
+    vec3 direction;
+    //Cut off angle of the spotlight
+    float cutOff;
 
     vec3 ambient;
     vec3 diffuse;
@@ -39,39 +43,52 @@ uniform vec3 viewPos;
 
 void main()
 {
-    //ambient light
-    //Get the fragments diffuse value from the texture and add it to the calc
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-
-    //diffuse light
-    vec3 norm = normalize(Normal);
-    //Gets the direction of the 
     vec3 lightDir = normalize(light.position - FragPos);
-    //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
-    float diff = max(dot(norm, lightDir), 0.0);
-    //Get the fragments diffuse value from the texture and add it to the calc
-    vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords)); 
 
-    //Specular light
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    //get the dot product of view direction and reflect direction make sure it is not negative using max and raise it to the power of 32
-    //this affects the sharpness of the reflection
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
+    //Check if the area to light is inside the cone of the spotlight
+    float theta = dot(lightDir, normalize(-light.direction));
 
-    //Attenuation (makes light further from point light dimmer)
-    float distance = length(light.position - FragPos);
-    //Attentation formula
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    if(theta > light.cutOff)
+    {  
+        //ambient light
+        //Get the fragments diffuse value from the texture and add it to the calc
+        vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
-    //Applies attenuation to light effects:
-    ambient *= attenuation;
-    diffuse *= attenuation;
-    specular *= attenuation;
+        //diffuse light
+        vec3 norm = normalize(Normal);
+        //Gets the direction of the 
+        //dot product of the norm and light direction creates the diffuse effect add a max becaues once it goes beyond 90 it messes up
+        float diff = max(dot(norm, lightDir), 0.0);
+        //Get the fragments diffuse value from the texture and add it to the calc
+        vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords)); 
 
-    //applies the result of all the lighting methods to the objects color
-    vec3 result = ambient + diffuse + specular;
-    //applies the result of the objects color with the lighting to the cube
-    FragColor = vec4(result, 1.0);
+        //Specular light
+        vec3 viewDir = normalize(viewPos - FragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        //get the dot product of view direction and reflect direction make sure it is not negative using max and raise it to the power of 32
+        //this affects the sharpness of the reflection
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
+
+        //Attenuation (makes light further from point light dimmer)
+        float distance = length(light.position - FragPos);
+        //Attentation formula
+        float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+        //Applies attenuation to light effects:
+        ambient *= attenuation;
+        diffuse *= attenuation;
+        specular *= attenuation;
+
+        //applies the result of all the lighting methods to the objects color
+        vec3 result = ambient + diffuse + specular;
+        //applies the result of the objects color with the lighting to the cube
+        FragColor = vec4(result, 1.0);
+    }
+    //If the objects are not in the flashlight light them with ambient light only instead
+    else
+    {
+        FragColor = vec4(light.ambient * texture(material.diffuse, TexCoords).rgb, 1.0);
+    }
+
 }  
