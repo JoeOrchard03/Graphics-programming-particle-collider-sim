@@ -363,6 +363,8 @@ int main()
         glUniform3fv(lightDirectionLoc, 1, glm::value_ptr(glm::vec3(cameraFront)));
         int lightCutOffLoc = glGetUniformLocation(lightShaderProgram, "light.cutOff");
         glUniform1f(lightCutOffLoc, glm::cos(glm::radians(12.5f)));
+        int lightOuterCutOffLoc = glGetUniformLocation(lightShaderProgram, "light.outerCutOff");
+        glUniform1f(lightOuterCutOffLoc, glm::cos(glm::radians(17.5f)));
 
         int viewPosLoc = glGetUniformLocation(lightShaderProgram, "viewPos");
         glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
