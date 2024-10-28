@@ -14,132 +14,22 @@
 
 #include "Shader.h"
 #include "Vertex.h"
+#include "LoadModel.h"
+#include "BufferObjectsLoad.h"
 #include <random>
 
+//Window
+SDL_Window* window;
 
-bool LoadTeaPot(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
-{
-	//Calls the asset importer library
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
-													   aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
-	//block based off learningspace tutorials
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
-		return false;
-	}
-	//JUST A DEMO, assuming just one texture! You can use other textures, see documentation!
-	//http://assimp.sourceforge.net/lib_html/structai_material.html
-	bool hasTexture = false;
-	aiString texPath("");
-	if (scene->HasMaterials()) {
-		aiMaterial* material = scene->mMaterials[0];
-		hasTexture = material && material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) >= 0;
-	}
-	texturePath = texPath.C_Str(); //converts to const char
-	//JUST A DEMO, assuming one mesh!
-	aiMesh* mesh = scene->mMeshes[0];
-	if (!mesh) return false;
+//Global variables for loading models
+//Vertices are the points that make up the shape
+std::vector<Vertex> vertices;
+//Indices control which vertices link to form a shape
+std::vector<unsigned> indices;
+//Texture
+std::string texturePath;
 
-	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
-	ModelVertices.clear();
-	ModelIndices.clear();
-
-	//Assigns new vertices and indices from the fbx file
-	ModelVertices.resize(mesh->mNumVertices);
-	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
-	for(unsigned i = 0; i < mesh->mNumVertices; i++)
-	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
-
-		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
-		}
-
-		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
-		}
-	}
-
-	for (unsigned i = 0; i < mesh->mNumFaces; i++) 
-	{
-		aiFace& face = mesh->mFaces[i];
-		for (unsigned j = 0; j < face.mNumIndices; j++) 
-		{
-			ModelIndices.push_back(face.mIndices[j]);
-		}
-	}
-
-	return !(ModelVertices.empty() || ModelIndices.empty());
-}
-
-bool LoadCrate(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
-{
-	//Calls the asset importer library
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
-		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
-	//block based off learningspace tutorials
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
-		return false;
-	}
-	//JUST A DEMO, assuming just one texture! You can use other textures, see documentation!
-	//http://assimp.sourceforge.net/lib_html/structai_material.html
-	bool hasTexture = false;
-	aiString texPath("");
-	if (scene->HasMaterials()) {
-		aiMaterial* material = scene->mMaterials[0];
-		hasTexture = material && material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) >= 0;
-	}
-	texturePath = texPath.C_Str(); //converts to const char
-	//JUST A DEMO, assuming one mesh!
-	aiMesh* mesh = scene->mMeshes[0];
-	if (!mesh) return false;
-
-	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
-	ModelVertices.clear();
-	ModelIndices.clear();
-
-	//Assigns new vertices and indices from the fbx file
-	ModelVertices.resize(mesh->mNumVertices);
-	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
-	for (unsigned i = 0; i < mesh->mNumVertices; i++)
-	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
-
-		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
-		}
-
-		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
-		}
-	}
-
-	for (unsigned i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace& face = mesh->mFaces[i];
-		for (unsigned j = 0; j < face.mNumIndices; j++)
-		{
-			ModelIndices.push_back(face.mIndices[j]);
-		}
-	}
-
-	return !(ModelVertices.empty() || ModelIndices.empty());
-}
-
-int main(int argc, char ** argsv)
+SDL_Window* CreateWindow()
 {
 	//Initialises the SDL Library, passing in SDL_INIT_VIDEO to only initialise the video subsystems
 	//https://wiki.libsdl.org/SDL_Init
@@ -148,13 +38,13 @@ int main(int argc, char ** argsv)
 		//Display an error message box
 		//https://wiki.libsdl.org/SDL_ShowSimpleMessageBox
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_Init failed", SDL_GetError(), NULL);
-		return 1;
+		return 0;
 	}
-	
+
 	//Create a window, note we have to free the pointer returned using the DestroyWindow Function
 	//https://wiki.libsdl.org/SDL_CreateWindow
 	//Creates screen to view image with its dimensions uses a pointer so it does not duplicate, can change windows settings using different values
-	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 720, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 720, SDL_WINDOW_OPENGL);
 	//Checks to see if the window has been created, the pointer will have a value of some kind, if not it did not work
 	if (window == nullptr)
 	{
@@ -163,31 +53,43 @@ int main(int argc, char ** argsv)
 		//Close the SDL Library
 		//https://wiki.libsdl.org/SDL_Quit
 		SDL_Quit();
-		return 1;
+		return 0;
 	}
 
-	//Vertices are the points that make up the shape
-	std::vector<Vertex> vertices;
-	//Indices control which vertices link to form a shape
-	std::vector<unsigned> indices;
-	//Texture
-	std::string texturePath;
+	return window;
+}
 
-	//we can check for box here too!
-	if (!LoadCrate("Crate.fbx", vertices, indices, texturePath))
+void IntializeSDLVersion()
+{
+	//Set SDL_GL version
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+}
+
+void IntializeGlew()
+{
+	//Initialize GLEW, glew lets sdl and open gl work together better
+	glewExperimental = GL_TRUE;
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR LOADING MODEL", "", NULL);
-		//TODO: clean up here
-		return 1;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to initialise GLEW", (char*)glewGetErrorString(glewError), NULL);
 	}
+}
 
-	if (!LoadTeaPot("utah-teapot.fbx", vertices, indices, texturePath))
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR LOADING MODEL", "", NULL);
-		//TODO: clean up here
-		return 1;
-	}
+int main(int argc, char ** argsv)
+{
+	//Initalize SDL version
+	IntializeSDLVersion();
 
+	//Create window
+	window = CreateWindow();
+
+	//Load model
+	LoadModel("Crate.fbx", vertices, indices, texturePath);
+
+	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
 	//only load texture path if exists
@@ -201,81 +103,19 @@ int main(int argc, char ** argsv)
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	//Set SDL_GL version
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	//Initialize GLEW, glew lets sdl and open gl work together better
-	glewExperimental = GL_TRUE;
-	GLenum glewError = glewInit();
-	if (glewError != GLEW_OK)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to initialise GLEW", (char*)glewGetErrorString(glewError), NULL);
-	}
-
-	//create Vertex Array Object, array that contains vertices (collection of floats that represent pos in 3D space)
-	GLuint VertexArrayID;
-	//generate vertex array objects
-	glGenVertexArrays(1, &VertexArrayID); //first param is number of object, 2nd is object
-	//bind gl calls to VertexArrayID
-	glBindVertexArray(VertexArrayID);
-
-
-	//storage area for our buffer data
-	GLuint vertexBuffer;
-	//generate 1 buffer, put the resulting identifier in vertexBuffer
-	glGenBuffers(1, &vertexBuffer);
-	//bind the buffer so the operations of GLBuffer apply to vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	//set our current buffer target data to the g_buffer_data object
-	//static draw means we are making a static object - we define the object once and do not change it (similar to static in Unity/Unreal)
-	//see GL documentation for other draw types
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
-
-	glEnableVertexAttribArray(0); //attribute in location 0
-	glVertexAttribPointer(
-		0,			//attribute 0, must match the layout in the shader
-		3,			//size (of attribute - 3D vector, so 3)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)0	//array buffer offset (how far from start of array buffer does first vertex start?)
-	);
-
-	glEnableVertexAttribArray(1); //attribute in location 0
-	glVertexAttribPointer(
-		1,			//attribute 0, must match the layout in the shader
-		3,			//size (of attribute - 3D vector, so 3)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)(3 * sizeof(GL_FLOAT))	//array buffer offset (how far from start of array buffer does first vertex start?)
-	);
-
-	glEnableVertexAttribArray(2); //attribute in location 1
-	glVertexAttribPointer(
-		2,			//attribute 1, must match the layout in the shader
-		2,			//size (of attribute - 2D vector, so 2)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beggining of one vertex to the next)
-		(void*)(6 * sizeof(GL_FLOAT))	//NOTE: Starts after first 3 float values!
-	);
+	//Initalize Glew
+	IntializeGlew();
 	
-
-
-	//modified from: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-9-vbo-indexing/
-	// Generate a buffer for the indices
-	GLuint elementbuffer;
-	glGenBuffers(1, &elementbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * indices.size(), &indices[0], GL_STATIC_DRAW);
-
+	//Create buffer objects
+	unsigned int VBO, VAO, EBO;
+	//Initalise them
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	//Load all their attributes and stuff in this function
+	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
 	// Create one OpenGL texture
 	GLuint textureID;
@@ -305,7 +145,7 @@ int main(int argc, char ** argsv)
 	}
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
-	GLuint programID = LoadShaders("BasicVert.glsl", 
+	GLuint shaderProgram = LoadShaders("BasicVert.glsl",
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
@@ -322,13 +162,13 @@ int main(int argc, char ** argsv)
 	//Camera movement and rotation speed
 	const float walkspeed = 0.2f, rotSpeed = 0.1f;
 	//Gets the location of the object beginning at a certain point
-	unsigned int transformLoc = glGetUniformLocation(programID, "transform");
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
 	//Sets the colour of the object, changes default colour before texture is applied.
-	unsigned int objColourLoc = glGetUniformLocation(programID, "objColour");
+	unsigned int objColourLoc = glGetUniformLocation(shaderProgram, "objColour");
 	//The object that we are loading in
-	unsigned int modelLoc = glGetUniformLocation(programID, "model");
+	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
 	//Represents where the camera is in 3D space
-	unsigned int viewPosLoc = glGetUniformLocation(programID, "viewPos");
+	unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
@@ -338,8 +178,8 @@ int main(int argc, char ** argsv)
 		1.f, 1.f, 1.f // lightColour - The colour of the light in rgb values
 	};
 	GLuint bindingPoint = 1, uniformBuffer, blockIndex;
-	blockIndex = glGetUniformBlockIndex(programID, "LightBlock");
-	glUniformBlockBinding(programID, blockIndex, bindingPoint);
+	blockIndex = glGetUniformBlockIndex(shaderProgram, "LightBlock");
+	glUniformBlockBinding(shaderProgram, blockIndex, bindingPoint);
 	glGenBuffers(1, &uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightValues),
@@ -503,7 +343,7 @@ int main(int argc, char ** argsv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//use imported shader program(s)
-		glUseProgram(programID);
+		glUseProgram(shaderProgram);
 
 		//Handles rotation of the cube
 		view = glm::lookAt(
@@ -533,7 +373,7 @@ int main(int argc, char ** argsv)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Draw object from file
-		glBindVertexArray(VertexArrayID);
+		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		
@@ -554,13 +394,13 @@ int main(int argc, char ** argsv)
 
 	//clear memory before exit
 	glDisableVertexAttribArray(0);
-	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 
 	SDL_FreeSurface(image);
 	SDL_GL_DeleteContext(glContext);
 
-	glDeleteProgram(programID);
+	glDeleteProgram(shaderProgram);
 	SDL_GL_DeleteContext(glContext);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
 	//https://wiki.libsdl.org/SDL_DestroyWindow
