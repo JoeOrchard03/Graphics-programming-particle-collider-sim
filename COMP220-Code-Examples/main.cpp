@@ -15,6 +15,7 @@
 #include "Shader.h"
 #include "Vertex.h"
 #include "LoadModel.h"
+#include "BufferObjectsLoad.h"
 #include <random>
 
 //Window
@@ -77,7 +78,6 @@ void IntializeGlew()
 	}
 }
 
-
 int main(int argc, char ** argsv)
 {
 	//Initalize SDL version
@@ -108,40 +108,14 @@ int main(int argc, char ** argsv)
 	//Initalize Glew
 	IntializeGlew();
 	
+	//Create buffer objects
 	unsigned int VBO, VAO, EBO;
+	//Initalise them
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * indices.size(), &indices[0], GL_STATIC_DRAW);
-
-	GLuint shaderProgram = LoadShaders("BasicVert.glsl", "BasicFrag.glsl");
-
-	//Tells OpenGL how to interpret the vertex data
-	glVertexAttribPointer(
-		0,			//Specifies which attribute to configure
-		3,			//size (of attribute - 3D vector, so 3)
-		GL_FLOAT,	//data type
-		GL_FALSE,	//normalised? (between -1 and 1? if not, GL_TRUE will map automatically)
-		sizeof(Vertex),			//stride (how far from start of one attribute to the next - beginning of one vertex to the next)
-		(void*)0	//offset (how far from start of array buffer does first vertex start?)
-	);
-	//Enables the vertex attribute at the specified location
-	glEnableVertexAttribArray(0);
-
-	//Configures 2nd attribute
-	glVertexAttribPointer(1, 3,	GL_FLOAT, GL_FALSE,	sizeof(Vertex), (void*)(3 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(1); //attribute in location 0
-
-	//Configures 3rd attribute
-	glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)(6 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(2); 
+	//Load all their attributes and stuff in this function
+	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
 	// Create one OpenGL texture
 	GLuint textureID;
@@ -171,7 +145,7 @@ int main(int argc, char ** argsv)
 	}
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
-	shaderProgram = LoadShaders("BasicVert.glsl", 
+	GLuint shaderProgram = LoadShaders("BasicVert.glsl",
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");

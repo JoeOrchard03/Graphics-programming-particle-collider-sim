@@ -159,11 +159,13 @@ copy ..\Libraries\assimp-4.1.0\bin\x64\assimp-vc140-mt.dll "$(OutDir)\assimp-vc1
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BufferObjectsLoad.cpp" />
     <ClCompile Include="LoadModel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferObjectsLoad.h" />
     <ClInclude Include="LoadModel.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Shader.h" />
