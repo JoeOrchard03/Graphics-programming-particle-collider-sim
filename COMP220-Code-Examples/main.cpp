@@ -78,6 +78,52 @@ void IntializeGlew()
 	}
 }
 
+void HandleInput(SDL_Event ev, bool running, float rotationSpeed, glm::vec3 rotation, glm::vec3 forward, glm::vec3 right, glm::vec4 cameraFace, glm::vec3 position, float walkSpeed)
+{
+	//Switch case for every message we are intereted in
+	switch (ev.type)
+	{
+		//QUIT Message, usually called when the window has been closed
+	case SDL_QUIT:
+		running = false;
+		break;
+		//KEYDOWN Message, called when a key has been pressed down
+	case SDL_MOUSEMOTION: {
+		//Handles mouse movement
+		rotation.y -= ev.motion.xrel * rotationSpeed;
+		rotation.x -= ev.motion.yrel * rotationSpeed;
+		glm::mat4 viewRotate(1.f);
+		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
+		break;
+	}
+	case SDL_KEYDOWN:
+		//Check the actual key code of the key that has been pressed
+		switch (ev.key.keysym.sym)
+		{
+			//Escape key
+		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
+			running = false;
+			break;
+		case SDLK_w:
+			std::cout << "Pressing w" << std::endl;
+			position += walkSpeed * forward;
+			break;
+		case SDLK_s:
+			position -= walkSpeed * forward;
+			break;
+			//Added left and right camera movement
+		case SDLK_a:
+			position -= walkSpeed * right;
+			break;
+		case SDLK_d:
+			position += walkSpeed * right;
+			break;
+		}
+	}
+}
+
 int main(int argc, char ** argsv)
 {
 	//Initalize SDL version
@@ -280,54 +326,59 @@ int main(int argc, char ** argsv)
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
 	SDL_Event ev;
+
 	while (running) //functions as an update function
 	{
-		//Poll for the events which have happened in this frame
-		//https://wiki.libsdl.org/SDL_PollEvent
 		while (SDL_PollEvent(&ev))
 		{
-			//Switch case for every message we are intereted in
-			switch (ev.type)
-			{
-				//QUIT Message, usually called when the window has been closed
-			case SDL_QUIT:
-				running = false;
-				break;
-				//KEYDOWN Message, called when a key has been pressed down
-			case SDL_MOUSEMOTION: {
-					//Handles mouse movement
-				rotation.y -= ev.motion.xrel * rotSpeed;
-				rotation.x -= ev.motion.yrel * rotSpeed;
-				glm::mat4 viewRotate(1.f);
-				viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
-				break;
-			}
-			case SDL_KEYDOWN:
-				//Check the actual key code of the key that has been pressed
-				switch (ev.key.keysym.sym)
-				{
-					//Escape key
-				case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
-					running = false;
-					break;
-				case SDLK_w:
-					position += walkspeed * forward;
-					break;
-				case SDLK_s:
-					position -= walkspeed * forward;
-					break;
-					//Added left and right camera movement
-				case SDLK_a:
-					position -= walkspeed * right;
-					break;
-				case SDLK_d:
-					position += walkspeed * right;
-					break;
-				}
-			}
+			HandleInput(ev, running, rotSpeed, rotation, forward, right, cameraFace, position, walkspeed);
 		}
+		////Poll for the events which have happened in this frame
+		////https://wiki.libsdl.org/SDL_PollEvent
+		//while (SDL_PollEvent(&ev))
+		//{
+		//	//Switch case for every message we are intereted in
+		//	switch (ev.type)
+		//	{
+		//		//QUIT Message, usually called when the window has been closed
+		//	case SDL_QUIT:
+		//		running = false;
+		//		break;
+		//		//KEYDOWN Message, called when a key has been pressed down
+		//	case SDL_MOUSEMOTION: {
+		//			//Handles mouse movement
+		//		rotation.y -= ev.motion.xrel * rotSpeed;
+		//		rotation.x -= ev.motion.yrel * rotSpeed;
+		//		glm::mat4 viewRotate(1.f);
+		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		//		forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
+		//		break;
+		//	}
+		//	case SDL_KEYDOWN:
+		//		//Check the actual key code of the key that has been pressed
+		//		switch (ev.key.keysym.sym)
+		//		{
+		//			//Escape key
+		//		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
+		//			running = false;
+		//			break;
+		//		case SDLK_w:
+		//			position += walkspeed * forward;
+		//			break;
+		//		case SDLK_s:
+		//			position -= walkspeed * forward;
+		//			break;
+		//			//Added left and right camera movement
+		//		case SDLK_a:
+		//			position -= walkspeed * right;
+		//			break;
+		//		case SDLK_d:
+		//			position += walkspeed * right;
+		//			break;
+		//		}
+		//	}
+		/*}*/
 
 		model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
