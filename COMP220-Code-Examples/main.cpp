@@ -29,6 +29,11 @@ std::vector<unsigned> indices;
 //Texture
 std::string texturePath;
 
+struct cameraVariables {
+	glm::vec3 position;
+	glm::vec3 forward;
+};
+
 SDL_Window* CreateWindow()
 {
 	//Initialises the SDL Library, passing in SDL_INIT_VIDEO to only initialise the video subsystems
@@ -78,8 +83,9 @@ void IntializeGlew()
 	}
 }
 
-void HandleInput(SDL_Event ev, bool running, float rotationSpeed, glm::vec3 rotation, glm::vec3 forward, glm::vec3 right, glm::vec4 cameraFace, glm::vec3 position, float walkSpeed)
+cameraVariables HandleInput(SDL_Event ev, glm::mat4 view, bool running, float rotationSpeed, glm::vec3 rotation, glm::vec3 forward, glm::vec3 right, glm::vec4 cameraFace, glm::vec3 position, float walkSpeed)
 {
+	cameraVariables value;
 	//Switch case for every message we are intereted in
 	switch (ev.type)
 	{
@@ -122,6 +128,10 @@ void HandleInput(SDL_Event ev, bool running, float rotationSpeed, glm::vec3 rota
 			break;
 		}
 	}
+
+	value.position = position;
+	value.forward = forward;
+	return value;
 }
 
 int main(int argc, char ** argsv)
@@ -215,6 +225,14 @@ int main(int argc, char ** argsv)
 	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
 	//Represents where the camera is in 3D space
 	unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+
+	//Initalise view using default values
+	view = glm::lookAt(
+		position,
+		position + forward, //glm::vec3(0, 0, 0),
+		glm::vec3(0, 1, 0)
+	);
+	glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
@@ -331,7 +349,14 @@ int main(int argc, char ** argsv)
 	{
 		while (SDL_PollEvent(&ev))
 		{
-			HandleInput(ev, running, rotSpeed, rotation, forward, right, cameraFace, position, walkspeed);
+			cameraVariables cameraVars = HandleInput(ev, view, running, rotSpeed, rotation, forward, right, cameraFace, position, walkspeed);
+				//Initalise view using default values
+		view = glm::lookAt(
+			cameraVars.position,
+			cameraVars.position + cameraVars.forward, //glm::vec3(0, 0, 0),
+			glm::vec3(0, 1, 0));
+			glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
+			//glUniform3f(viewPosLoc, cameraVars.position.x, cameraVars.position.y, cameraVars.position.z);
 		}
 		////Poll for the events which have happened in this frame
 		////https://wiki.libsdl.org/SDL_PollEvent
@@ -396,13 +421,6 @@ int main(int argc, char ** argsv)
 		//use imported shader program(s)
 		glUseProgram(shaderProgram);
 
-		//Handles rotation of the cube
-		view = glm::lookAt(
-			position,
-			position + forward, //glm::vec3(0, 0, 0),
-			glm::vec3(0, 1, 0)
-		);
-
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
 		mvp = projection * view * model;
@@ -419,7 +437,7 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		glUniform3f(viewPosLoc, position.x, position.y, position.z);
+		//glUniform3f(viewPosLoc, position.x, position.y, position.z);
 
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
