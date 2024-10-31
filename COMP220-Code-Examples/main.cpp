@@ -96,7 +96,6 @@ void HandleInput(SDL_Event ev)
 	{
 		//QUIT Message, usually called when the window has been closed
 	case SDL_QUIT:
-		std::cout << "Quit case" << std::endl;
 		running = false;
 		break;
 		//KEYDOWN Message, called when a key has been pressed down
@@ -116,11 +115,9 @@ void HandleInput(SDL_Event ev)
 		{
 			//Escape key
 		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
-			std::cout << "escape called" << std::endl;
 			running = false;
 			break;
 		case SDLK_w:
-			std::cout << "Pressing w" << std::endl;
 			cameraPos += walkspeed * cameraFront;
 			break;
 		case SDLK_s:
@@ -145,7 +142,14 @@ int main(int argc, char ** argsv)
 	//Create window
 	window = CreateWindow();
 
-	//Load model
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+
+	//Initalize Glew
+	IntializeGlew();
+
+	//LoadModel
 	LoadModel("Crate.fbx", vertices, indices, texturePath);
 
 	//Check if model has texture
@@ -160,13 +164,8 @@ int main(int argc, char ** argsv)
 		return 1;
 	}
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
-
-	//Initalize Glew
-	IntializeGlew();
-	
+	// Create one OpenGL texture
+	GLuint textureID;
 	//Create buffer objects
 	unsigned int VBO, VAO, EBO;
 	//Initalise them
@@ -176,8 +175,10 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
-	// Create one OpenGL texture
-	GLuint textureID;
+	glm::vec3 modelPositions[] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(3.0f, 3.0f, 3.0f)
+	};
 
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
@@ -210,7 +211,6 @@ int main(int argc, char ** argsv)
 		"fragShader_post.glsl");
 
 	glm::mat4 model = glm::mat4(1.0f);		//identity matrix
-	//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
 	model = glm::scale(model,glm::vec3(0.01f,0.01f,0.01f));
 
 	glm::mat4 mvp, view, projection; // set up model, view, projection
@@ -223,15 +223,6 @@ int main(int argc, char ** argsv)
 	//The object that we are loading in
 	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
 	//Represents where the camera is in 3D space
-	//unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
-
-	////Initalise view using default values
-	//view = glm::lookAt(
-	//	position,
-	//	position + forward, //glm::vec3(0, 0, 0),
-	//	glm::vec3(0, 1, 0)
-	//);
-	//glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
@@ -349,14 +340,15 @@ int main(int argc, char ** argsv)
 		while (SDL_PollEvent(&ev))
 		{
 			HandleInput(ev);
-			std::cout << "poll event is true" << std::endl;
 		}
 
 		//use imported shader program(s)
 		glUseProgram(shaderProgram);
+		//Represents where the camera is in 3D space
 		int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
 		glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
 
+		//view matrix represents what the camera sees
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		int viewLoc = glGetUniformLocation(shaderProgram, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -391,10 +383,6 @@ int main(int argc, char ** argsv)
 		else {
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
-
-		//glUniform3f(viewPosLoc, position.x, position.y, position.z);
-
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Draw object from file
 		glBindVertexArray(VAO);
