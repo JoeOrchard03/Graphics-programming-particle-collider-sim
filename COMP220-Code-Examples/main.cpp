@@ -21,6 +21,8 @@
 //Window
 SDL_Window* window;
 
+bool running = true;
+
 //Global variables for loading models
 //Vertices are the points that make up the shape
 std::vector<Vertex> vertices;
@@ -29,10 +31,14 @@ std::vector<unsigned> indices;
 //Texture
 std::string texturePath;
 
-struct cameraVariables {
-	glm::vec3 position;
-	glm::vec3 forward;
-};
+//Camera variables
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
+const glm::vec4 cameraFace(0, 0, -1, 0);
+glm::vec3 rotation = glm::vec3(0);
+const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 SDL_Window* CreateWindow()
 {
@@ -83,25 +89,25 @@ void IntializeGlew()
 	}
 }
 
-cameraVariables HandleInput(SDL_Event ev, glm::mat4 view, bool running, float rotationSpeed, glm::vec3 rotation, glm::vec3 forward, glm::vec3 right, glm::vec4 cameraFace, glm::vec3 position, float walkSpeed)
+void HandleInput(SDL_Event ev)
 {
-	cameraVariables value;
 	//Switch case for every message we are intereted in
 	switch (ev.type)
 	{
 		//QUIT Message, usually called when the window has been closed
 	case SDL_QUIT:
+		std::cout << "Quit case" << std::endl;
 		running = false;
 		break;
 		//KEYDOWN Message, called when a key has been pressed down
 	case SDL_MOUSEMOTION: {
 		//Handles mouse movement
-		rotation.y -= ev.motion.xrel * rotationSpeed;
-		rotation.x -= ev.motion.yrel * rotationSpeed;
+		rotation.y -= ev.motion.xrel * rotSpeed;
+		rotation.x -= ev.motion.yrel * rotSpeed;
 		glm::mat4 viewRotate(1.f);
 		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
+		cameraFront = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
 		break;
 	}
 	case SDL_KEYDOWN:
@@ -110,28 +116,25 @@ cameraVariables HandleInput(SDL_Event ev, glm::mat4 view, bool running, float ro
 		{
 			//Escape key
 		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
+			std::cout << "escape called" << std::endl;
 			running = false;
 			break;
 		case SDLK_w:
 			std::cout << "Pressing w" << std::endl;
-			position += walkSpeed * forward;
+			cameraPos += walkspeed * cameraFront;
 			break;
 		case SDLK_s:
-			position -= walkSpeed * forward;
+			cameraPos -= walkspeed * cameraFront;
 			break;
 			//Added left and right camera movement
 		case SDLK_a:
-			position -= walkSpeed * right;
+			cameraPos -= walkspeed * cameraRight;
 			break;
 		case SDLK_d:
-			position += walkSpeed * right;
+			cameraPos += walkspeed * cameraRight;
 			break;
 		}
 	}
-
-	value.position = position;
-	value.forward = forward;
-	return value;
 }
 
 int main(int argc, char ** argsv)
@@ -211,12 +214,8 @@ int main(int argc, char ** argsv)
 	model = glm::scale(model,glm::vec3(0.01f,0.01f,0.01f));
 
 	glm::mat4 mvp, view, projection; // set up model, view, projection
+	//glm::mat4 mvp, view, projection; // set up model, view, projection
 	
-	//Sets the default position and orientation of the camera
-	glm::vec3 position(0, 0, 2), forward(0,0,-1), right(1, 0, 0), rotation(0);
-	const glm::vec4 cameraFace(0,0,-1,0);
-	//Camera movement and rotation speed
-	const float walkspeed = 0.2f, rotSpeed = 0.1f;
 	//Gets the location of the object beginning at a certain point
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
 	//Sets the colour of the object, changes default colour before texture is applied.
@@ -224,15 +223,15 @@ int main(int argc, char ** argsv)
 	//The object that we are loading in
 	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
 	//Represents where the camera is in 3D space
-	unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+	//unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
 
-	//Initalise view using default values
-	view = glm::lookAt(
-		position,
-		position + forward, //glm::vec3(0, 0, 0),
-		glm::vec3(0, 1, 0)
-	);
-	glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
+	////Initalise view using default values
+	//view = glm::lookAt(
+	//	position,
+	//	position + forward, //glm::vec3(0, 0, 0),
+	//	glm::vec3(0, 1, 0)
+	//);
+	//glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
@@ -341,7 +340,7 @@ int main(int argc, char ** argsv)
 	//DEPTH TEST MOVED!!
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
-	bool running = true;
+	running = true;
 	//SDL Event structure, this will be checked in the while loop
 	SDL_Event ev;
 
@@ -349,61 +348,18 @@ int main(int argc, char ** argsv)
 	{
 		while (SDL_PollEvent(&ev))
 		{
-			cameraVariables cameraVars = HandleInput(ev, view, running, rotSpeed, rotation, forward, right, cameraFace, position, walkspeed);
-				//Initalise view using default values
-		view = glm::lookAt(
-			cameraVars.position,
-			cameraVars.position + cameraVars.forward, //glm::vec3(0, 0, 0),
-			glm::vec3(0, 1, 0));
-			glUniformMatrix4fv(viewPosLoc, 1, GL_FALSE, glm::value_ptr(view));
-			//glUniform3f(viewPosLoc, cameraVars.position.x, cameraVars.position.y, cameraVars.position.z);
+			HandleInput(ev);
+			std::cout << "poll event is true" << std::endl;
 		}
-		////Poll for the events which have happened in this frame
-		////https://wiki.libsdl.org/SDL_PollEvent
-		//while (SDL_PollEvent(&ev))
-		//{
-		//	//Switch case for every message we are intereted in
-		//	switch (ev.type)
-		//	{
-		//		//QUIT Message, usually called when the window has been closed
-		//	case SDL_QUIT:
-		//		running = false;
-		//		break;
-		//		//KEYDOWN Message, called when a key has been pressed down
-		//	case SDL_MOUSEMOTION: {
-		//			//Handles mouse movement
-		//		rotation.y -= ev.motion.xrel * rotSpeed;
-		//		rotation.x -= ev.motion.yrel * rotSpeed;
-		//		glm::mat4 viewRotate(1.f);
-		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		//		viewRotate = glm::rotate(viewRotate, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		//		forward = glm::normalize(glm::vec3(viewRotate * cameraFace)); //normalise to avoid magnitude
-		//		break;
-		//	}
-		//	case SDL_KEYDOWN:
-		//		//Check the actual key code of the key that has been pressed
-		//		switch (ev.key.keysym.sym)
-		//		{
-		//			//Escape key
-		//		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
-		//			running = false;
-		//			break;
-		//		case SDLK_w:
-		//			position += walkspeed * forward;
-		//			break;
-		//		case SDLK_s:
-		//			position -= walkspeed * forward;
-		//			break;
-		//			//Added left and right camera movement
-		//		case SDLK_a:
-		//			position -= walkspeed * right;
-		//			break;
-		//		case SDLK_d:
-		//			position += walkspeed * right;
-		//			break;
-		//		}
-		//	}
-		/*}*/
+
+		//use imported shader program(s)
+		glUseProgram(shaderProgram);
+		int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+		glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
+
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		int viewLoc = glGetUniformLocation(shaderProgram, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
@@ -418,8 +374,7 @@ int main(int argc, char ** argsv)
 		//clear the screen (prevents drawing over previous screen)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//use imported shader program(s)
-		glUseProgram(shaderProgram);
+
 
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
