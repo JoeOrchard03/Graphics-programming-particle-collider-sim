@@ -30,6 +30,7 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 
 	//Assigns new vertices and indices from the fbx file
 	ModelVertices.resize(mesh->mNumVertices);
+
 	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
 	for (unsigned i = 0; i < mesh->mNumVertices; i++)
 	{

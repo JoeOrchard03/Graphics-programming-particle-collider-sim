@@ -8,6 +8,7 @@ out vec3 vertNorm;
 out vec2 vertUV;
 
 uniform mat4 transform;
+uniform mat4 transform2;
 
 void main()
 {

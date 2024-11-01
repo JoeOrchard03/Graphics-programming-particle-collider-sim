@@ -31,6 +31,14 @@ std::vector<unsigned> indices;
 //Texture
 std::string texturePath;
 
+//Global variables for loading models
+//Vertices are the points that make up the shape
+std::vector<Vertex> vertices2;
+//Indices control which vertices link to form a shape
+std::vector<unsigned> indices2;
+//Texture
+std::string texturePath2;
+
 //Camera variables
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -151,12 +159,23 @@ int main(int argc, char ** argsv)
 
 	//LoadModel
 	LoadModel("Crate.fbx", vertices, indices, texturePath);
+	//LoadModel
+	LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
 
 	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
 	//only load texture path if exists
 	SDL_Surface* image = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
+	if (hasTexture && !image) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		return 1;
+	}
+
+	//only load texture path if exists
+	SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath2.c_str()) : nullptr;
 	if (hasTexture && !image) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
 		SDL_DestroyWindow(window);
@@ -174,6 +193,15 @@ int main(int argc, char ** argsv)
 	glGenBuffers(1, &EBO);
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
+
+	GLuint textureID2;
+	unsigned int VBO2, VAO2, EBO2;
+	//Initalise them
+	glGenVertexArrays(1, &VAO2);
+	glGenBuffers(1, &VBO2);
+	glGenBuffers(1, &EBO2);
+	//Load all their attributes and stuff in this function
+	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
 	glm::vec3 modelPositions[] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),
@@ -203,6 +231,31 @@ int main(int argc, char ** argsv)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
+
+	if (image2) {
+		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
+
+		//IF IMAGE BREAKING CHECK THIS
+		glGenTextures(1, &textureID2);
+
+		// "Bind" the newly created texture : all future texture functions will modify this texture
+		glBindTexture(GL_TEXTURE_2D, textureID2);
+
+		int Mode = GL_RGB;
+
+		if (image2->format->BytesPerPixel == 4) {
+			Mode = GL_RGBA;
+		}
+		glTexImage2D(GL_TEXTURE_2D, 0, Mode, image2->w, image2->h, 0, Mode, GL_UNSIGNED_BYTE, image2->pixels);
+
+		// Nice trilinear filtering.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
 	GLuint shaderProgram = LoadShaders("BasicVert.glsl",
@@ -213,15 +266,25 @@ int main(int argc, char ** argsv)
 	glm::mat4 model = glm::mat4(1.0f);		//identity matrix
 	model = glm::scale(model,glm::vec3(0.01f,0.01f,0.01f));
 
+	glm::mat4 model2 = glm::mat4(1.0f);		//identity matrix
+	model2 = glm::scale(model2, glm::vec3(110.01f, 0.01f, 0.01f));
+
+	//glm::translate(1, glm::vec3(0.01f, 0.01f, 0.01f));s
+
+	model2 = glm::translate(model2, glm::vec3(225.9f, 23.1f, 22.9f));
 	glm::mat4 mvp, view, projection; // set up model, view, projection
 	//glm::mat4 mvp, view, projection; // set up model, view, projection
 	
 	//Gets the location of the object beginning at a certain point
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+	//Gets the location of the object beginning at a certain point
+	unsigned int transformLoc2 = glGetUniformLocation(shaderProgram, "transform2");
 	//Sets the colour of the object, changes default colour before texture is applied.
 	unsigned int objColourLoc = glGetUniformLocation(shaderProgram, "objColour");
 	//The object that we are loading in
 	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
+	//The object that we are loading in
+	unsigned int modelLoc2 = glGetUniformLocation(shaderProgram, "model2");
 	//Represents where the camera is in 3D space
 
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
@@ -374,6 +437,7 @@ int main(int argc, char ** argsv)
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(modelLoc2, 1, GL_FALSE, glm::value_ptr(model2));
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -388,7 +452,11 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		
+
+		glBindVertexArray(VAO2);
+		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
+		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
+
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.1f);
