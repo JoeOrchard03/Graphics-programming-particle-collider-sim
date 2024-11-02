@@ -4,10 +4,12 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 {
 	//Calls the asset importer library
 	Assimp::Importer importer;
+	//Loads the model into an asset importer scene object
 	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals |
 		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals);
-	//block based off learningspace tutorials
+	//Checks if model import was sucessful by checking scene is not empty, that it is not incomplete according to assimp and that it has a root node and a mesh
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
+		//If scene is messed up display an error and return false to quit out of the function
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
 		return false;
 	}
@@ -15,49 +17,63 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 	//http://assimp.sourceforge.net/lib_html/structai_material.html
 	bool hasTexture = false;
 	aiString texPath("");
+	//Check if model has materials using an assimp function
 	if (scene->HasMaterials()) {
+		//Creates and sets a material object using the first material in the scene
 		aiMaterial* material = scene->mMaterials[0];
+		//hasTexture is a bool, checks if material is valid(exists), also checks if the found material is a diffuse material using GetTexture function
 		hasTexture = material && material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) >= 0;
 	}
+	//If material contains a diffuse material stores it in the texturePath
 	texturePath = texPath.C_Str(); //converts to const char
 	//JUST A DEMO, assuming one mesh!
+	//Sets mesh to be the first mesh that is found in the scene
 	aiMesh* mesh = scene->mMeshes[0];
+	//Quits out function if no mesh is found
 	if (!mesh) return false;
 
 	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
 	ModelVertices.clear();
 	ModelIndices.clear();
 
-	//Assigns new vertices and indices from the fbx file
+	//Resizes the size of model vertices to match the amount the new mesh has as different loaded models likely have a different amount of vertices
 	ModelVertices.resize(mesh->mNumVertices);
 
+	//assigns the mesh's texture coordinates to texCoords object
 	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
+	//Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
 	for (unsigned i = 0; i < mesh->mNumVertices; i++)
 	{
 		ModelVertices[i].x = mesh->mVertices[i].x;
 		ModelVertices[i].y = mesh->mVertices[i].y;
 		ModelVertices[i].z = mesh->mVertices[i].z;
-
+		
+		//Does the same for any normals
 		if (mesh->HasNormals()) {
 			ModelVertices[i].nx = mesh->mNormals[i].x;
 			ModelVertices[i].ny = mesh->mNormals[i].y;
 			ModelVertices[i].nz = mesh->mNormals[i].z;
 		}
 
+		//Gets the uv's from the texCoords of the mesh
 		if (texCoords) {
 			ModelVertices[i].u = texCoords[i].x;
 			ModelVertices[i].v = texCoords[i].y;
 		}
 	}
 
+	//Loops through each face in the mesh
 	for (unsigned i = 0; i < mesh->mNumFaces; i++)
 	{
+		//Loops through each index in each face
 		aiFace& face = mesh->mFaces[i];
 		for (unsigned j = 0; j < face.mNumIndices; j++)
 		{
+			//Sends the index data back to model indices
 			ModelIndices.push_back(face.mIndices[j]);
 		}
 	}
 
+	//Returns true if modelVertices and modelIndices were populated succesfully, otherwise returns false
 	return !(ModelVertices.empty() || ModelIndices.empty());
 }
