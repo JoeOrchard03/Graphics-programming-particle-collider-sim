@@ -438,7 +438,7 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		// Draw object from file
+		// Draw crate
 		crateMVP = projection * view * crateModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(crateMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(crateModel));
@@ -446,6 +446,7 @@ int main(int argc, char ** argsv)
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
+		//Draw teapot
 		teapotMVP = projection * view * teapotModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(teapotMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
