@@ -194,6 +194,7 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
+	//Create texture and buffer objects for other model
 	GLuint textureID2;
 	unsigned int VBO2, VAO2, EBO2;
 	//Initalise them
@@ -203,11 +204,7 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
-	glm::vec3 modelPositions[] = {
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(3.0f, 3.0f, 3.0f)
-	};
-
+	//Texture binding for first model
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
@@ -232,6 +229,7 @@ int main(int argc, char ** argsv)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
+	//Texture binding for second model
 	if (image2) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
@@ -263,30 +261,29 @@ int main(int argc, char ** argsv)
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
 
-	glm::mat4 model = glm::mat4(1.0f);		//identity matrix
-	model = glm::scale(model,glm::vec3(0.01f,0.01f,0.01f));
-
-	glm::mat4 model2 = glm::mat4(1.0f);		//identity matrix
-	model2 = glm::scale(model2, glm::vec3(110.01f, 0.01f, 0.01f));
-
-	//glm::translate(1, glm::vec3(0.01f, 0.01f, 0.01f));s
-
-	model2 = glm::translate(model2, glm::vec3(225.9f, 23.1f, 22.9f));
-	glm::mat4 mvp, view, projection; // set up model, view, projection
-	//glm::mat4 mvp, view, projection; // set up model, view, projection
+	//Crate identity matrix
+	glm::mat4 crateModel = glm::mat4(1.0f);
+	crateModel = glm::scale(crateModel,glm::vec3(0.01f,0.01f,0.01f));
 	
-	//Gets the location of the object beginning at a certain point
-	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-	//Gets the location of the object beginning at a certain point
-	unsigned int transformLoc2 = glGetUniformLocation(shaderProgram, "transform2");
-	//Sets the colour of the object, changes default colour before texture is applied.
-	unsigned int objColourLoc = glGetUniformLocation(shaderProgram, "objColour");
-	//The object that we are loading in
-	unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
-	//The object that we are loading in
-	unsigned int modelLoc2 = glGetUniformLocation(shaderProgram, "model2");
-	//Represents where the camera is in 3D space
+	//Teapot identiy matrix
+	glm::mat4 teapotModel = glm::mat4(1.0f);
+	teapotModel = glm::scale(teapotModel, glm::vec3(0.01f, 0.01f, 0.01f));
+	//Move pot to the right so it is outside of the crate
+	teapotModel = glm::translate(teapotModel, glm::vec3(250.0f, 0.0f, -20.0f));
 
+	//Setup matricies
+	glm::mat4 crateMVP, //Crate identity matrix
+		teapotMVP, //Teapot identity matrix
+		view, //View matrix - handles everything that the camera sees
+		projection; //Projection matrix - gives the camera depth perspective
+
+	//Get location of uniform variables in the shader program
+	unsigned int 
+		transformLoc = glGetUniformLocation(shaderProgram, "transform"), //Location of the object
+		objColourLoc = glGetUniformLocation(shaderProgram, "objColour"), //Color of the object, overwritten by texture
+		modelLoc = glGetUniformLocation(shaderProgram, "model"); //Model identity matrix
+
+	//Lighting
 	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
 	//note: lightcolour is changed!
 	float lightValues[] = {
@@ -294,15 +291,14 @@ int main(int argc, char ** argsv)
 		0.0f, // padding for alignment - do you want to offset the light
 		1.f, 1.f, 1.f // lightColour - The colour of the light in rgb values
 	};
+
 	GLuint bindingPoint = 1, uniformBuffer, blockIndex;
 	blockIndex = glGetUniformBlockIndex(shaderProgram, "LightBlock");
 	glUniformBlockBinding(shaderProgram, blockIndex, bindingPoint);
 	glGenBuffers(1, &uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightValues),
-				 lightValues, GL_STATIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint,
-		uniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(lightValues), lightValues, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, uniformBuffer);
 
 	// NOTE: THIS SECTION IS FROM WORKSHOP SLIDES
 	//The texture we are going to render to
@@ -348,7 +344,6 @@ int main(int argc, char ** argsv)
 		//error message!
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to create framebuffer", "", NULL);
 	}
-
 
 	//Screen Quad// - The post effect rectangle that goes in front of the camera
 	//EXPANDED from workshop slides
@@ -416,7 +411,8 @@ int main(int argc, char ** argsv)
 		int viewLoc = glGetUniformLocation(shaderProgram, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		crateModel = glm::rotate(crateModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		teapotModel = glm::rotate(teapotModel, glm::radians(10.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
@@ -429,15 +425,9 @@ int main(int argc, char ** argsv)
 		//clear the screen (prevents drawing over previous screen)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
-		mvp = projection * view * model;
-
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(modelLoc2, 1, GL_FALSE, glm::value_ptr(model2));
+		teapotMVP = projection * view * teapotModel;
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -449,10 +439,16 @@ int main(int argc, char ** argsv)
 		}
 
 		// Draw object from file
+		crateMVP = projection * view * crateModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(crateMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(crateModel));
 		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
+		teapotMVP = projection * view * teapotModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(teapotMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
