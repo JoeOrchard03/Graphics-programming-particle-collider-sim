@@ -160,29 +160,25 @@ int main(int argc, char ** argsv)
 	//LoadModel
 	LoadModel("Crate.fbx", vertices, indices, texturePath);
 	//LoadModel
-	LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
+	LoadModel("Joe sculpt ducks 1 obj.obj", vertices2, indices2, texturePath2);
 
 	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
-	//only load texture path if exists
-	SDL_Surface* image = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
-	if (hasTexture && !image) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
+	//hard coded texture path
+	SDL_Surface* image = IMG_Load("tex/crate_color.png");
 
-	//only load texture path if exists
-	SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath2.c_str()) : nullptr;
-	if (hasTexture && !image) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
+	SDL_Surface* image2 = IMG_Load("tex/DuckTexture.png");
 
+
+	////only load texture path if exists
+	//SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
+	//if (hasTexture && !image2) {
+	//	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
+	//	SDL_DestroyWindow(window);
+	//	SDL_Quit();
+	//	return 1;
+	//}
 	// Create one OpenGL texture
 	GLuint textureID;
 	//Create buffer objects
@@ -269,7 +265,7 @@ int main(int argc, char ** argsv)
 	glm::mat4 teapotModel = glm::mat4(1.0f);
 	teapotModel = glm::scale(teapotModel, glm::vec3(0.01f, 0.01f, 0.01f));
 	//Move pot to the right so it is outside of the crate
-	teapotModel = glm::translate(teapotModel, glm::vec3(250.0f, 0.0f, -20.0f));
+	teapotModel = glm::translate(teapotModel, glm::vec3(200.0f, 0.0f, -25.0f));
 
 	//Setup matricies
 	glm::mat4 crateMVP, //Crate identity matrix
