@@ -28,51 +28,99 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 	texturePath = texPath.C_Str(); //converts to const char
 	//JUST A DEMO, assuming one mesh!
 	//Sets mesh to be the first mesh that is found in the scene
+
 	aiMesh* mesh = scene->mMeshes[0];
 	//Quits out function if no mesh is found
 	if (!mesh) return false;
 
-	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
 	ModelVertices.clear();
 	ModelIndices.clear();
 
-	//Resizes the size of model vertices to match the amount the new mesh has as different loaded models likely have a different amount of vertices
-	ModelVertices.resize(mesh->mNumVertices);
-
-	//assigns the mesh's texture coordinates to texCoords object
-	aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
-	//Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
-	for (unsigned i = 0; i < mesh->mNumVertices; i++)
+	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
+	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
-		ModelVertices[i].x = mesh->mVertices[i].x;
-		ModelVertices[i].y = mesh->mVertices[i].y;
-		ModelVertices[i].z = mesh->mVertices[i].z;
-		
-		//Does the same for any normals
-		if (mesh->HasNormals()) {
-			ModelVertices[i].nx = mesh->mNormals[i].x;
-			ModelVertices[i].ny = mesh->mNormals[i].y;
-			ModelVertices[i].nz = mesh->mNormals[i].z;
-		}
+		mesh = scene->mMeshes[i];
+		std::cout << (mesh->mName).C_Str()<<std::endl;
 
-		//Gets the uv's from the texCoords of the mesh
-		if (texCoords) {
-			ModelVertices[i].u = texCoords[i].x;
-			ModelVertices[i].v = texCoords[i].y;
-		}
-	}
+		//Resizes the size of model vertices to match the amount the new mesh has as different loaded models likely have a different amount of vertices
+		ModelVertices.resize(mesh->mNumVertices);
 
-	//Loops through each face in the mesh
-	for (unsigned i = 0; i < mesh->mNumFaces; i++)
-	{
-		//Loops through each index in each face
-		aiFace& face = mesh->mFaces[i];
-		for (unsigned j = 0; j < face.mNumIndices; j++)
+		//assigns the mesh's texture coordinates to texCoords object
+		aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
+		//Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
+		for (unsigned i = 0; i < mesh->mNumVertices; i++)
 		{
-			//Sends the index data back to model indices
-			ModelIndices.push_back(face.mIndices[j]);
+			ModelVertices[i].x = mesh->mVertices[i].x;
+			ModelVertices[i].y = mesh->mVertices[i].y;
+			ModelVertices[i].z = mesh->mVertices[i].z;
+
+			//Does the same for any normals
+			if (mesh->HasNormals()) {
+				ModelVertices[i].nx = mesh->mNormals[i].x;
+				ModelVertices[i].ny = mesh->mNormals[i].y;
+				ModelVertices[i].nz = mesh->mNormals[i].z;
+			}
+
+			//Gets the uv's from the texCoords of the mesh
+			if (texCoords) {
+				ModelVertices[i].u = texCoords[i].x;
+				ModelVertices[i].v = texCoords[i].y;
+			}
+		}
+
+		//Loops through each face in the mesh
+		for (unsigned i = 0; i < mesh->mNumFaces; i++)
+		{
+			//Loops through each index in each face
+			aiFace& face = mesh->mFaces[i];
+			for (unsigned j = 0; j < face.mNumIndices; j++)
+			{
+				//Sends the index data back to model indices
+				ModelIndices.push_back(face.mIndices[j]);
+			}
 		}
 	}
+
+	//ModelVertices.clear();
+	//ModelIndices.clear();
+
+	////Resizes the size of model vertices to match the amount the new mesh has as different loaded models likely have a different amount of vertices
+	//ModelVertices.resize(mesh->mNumVertices);
+
+	////assigns the mesh's texture coordinates to texCoords object
+	//aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
+	////Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
+	//for (unsigned i = 0; i < mesh->mNumVertices; i++)
+	//{
+	//	ModelVertices[i].x = mesh->mVertices[i].x;
+	//	ModelVertices[i].y = mesh->mVertices[i].y;
+	//	ModelVertices[i].z = mesh->mVertices[i].z;
+	//	
+	//	//Does the same for any normals
+	//	if (mesh->HasNormals()) {
+	//		ModelVertices[i].nx = mesh->mNormals[i].x;
+	//		ModelVertices[i].ny = mesh->mNormals[i].y;
+	//		ModelVertices[i].nz = mesh->mNormals[i].z;
+	//	}
+
+	//	//Gets the uv's from the texCoords of the mesh
+	//	if (texCoords) {
+	//		ModelVertices[i].u = texCoords[i].x;
+	//		ModelVertices[i].v = texCoords[i].y;
+	//	}
+	//}
+
+	////Loops through each face in the mesh
+	//for (unsigned i = 0; i < mesh->mNumFaces; i++)
+	//{
+	//	//Loops through each index in each face
+	//	aiFace& face = mesh->mFaces[i];
+	//	for (unsigned j = 0; j < face.mNumIndices; j++)
+	//	{
+	//		//Sends the index data back to model indices
+	//		ModelIndices.push_back(face.mIndices[j]);
+	//	}
+	//}
 
 	//Returns true if modelVertices and modelIndices were populated succesfully, otherwise returns false
 	return !(ModelVertices.empty() || ModelIndices.empty());
