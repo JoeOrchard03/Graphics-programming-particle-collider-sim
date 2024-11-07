@@ -1,5 +1,9 @@
 #include "LoadModel.h"
 
+#include <iostream>
+
+
+
 bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
 {
 	//Calls the asset importer library
@@ -36,6 +40,9 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 	ModelVertices.clear();
 	ModelIndices.clear();
 
+	unsigned int verticesCounter = 0;
+	unsigned int indicesCounter = 0;
+
 	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
 	for (unsigned i = 0; i < scene->mNumMeshes; i++)
 	{
@@ -43,28 +50,30 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 		std::cout << (mesh->mName).C_Str()<<std::endl;
 
 		//Resizes the size of model vertices to match the amount the new mesh has as different loaded models likely have a different amount of vertices
-		ModelVertices.resize(mesh->mNumVertices);
+		ModelVertices.resize(verticesCounter + mesh->mNumVertices);
 
 		//assigns the mesh's texture coordinates to texCoords object
 		aiVector3D* texCoords = hasTexture ? mesh->mTextureCoords[0] : nullptr;
 		//Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
-		for (unsigned i = 0; i < mesh->mNumVertices; i++)
+		for (unsigned j = 0; j < mesh->mNumVertices; j++)
 		{
-			ModelVertices[i].x = mesh->mVertices[i].x;
-			ModelVertices[i].y = mesh->mVertices[i].y;
-			ModelVertices[i].z = mesh->mVertices[i].z;
+			//std::cout << "j= " << j << ", mesh vertices= " << mesh->mNumVertices << std::endl;
+
+			ModelVertices[j + verticesCounter].x = mesh->mVertices[j].x;
+			ModelVertices[j + verticesCounter].y = mesh->mVertices[j].y;
+			ModelVertices[j + verticesCounter].z = mesh->mVertices[j].z;
 
 			//Does the same for any normals
 			if (mesh->HasNormals()) {
-				ModelVertices[i].nx = mesh->mNormals[i].x;
-				ModelVertices[i].ny = mesh->mNormals[i].y;
-				ModelVertices[i].nz = mesh->mNormals[i].z;
+				ModelVertices[j + verticesCounter].nx = mesh->mNormals[j].x;
+				ModelVertices[j + verticesCounter].ny = mesh->mNormals[j].y;
+				ModelVertices[j + verticesCounter].nz = mesh->mNormals[j].z;
 			}
 
 			//Gets the uv's from the texCoords of the mesh
 			if (texCoords) {
-				ModelVertices[i].u = texCoords[i].x;
-				ModelVertices[i].v = texCoords[i].y;
+				ModelVertices[j + verticesCounter].u = texCoords[j].x;
+				ModelVertices[j + verticesCounter].v = texCoords[j].y;
 			}
 		}
 
@@ -79,6 +88,9 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 				ModelIndices.push_back(face.mIndices[j]);
 			}
 		}
+		
+		indicesCounter += mesh->mFaces[i].mNumIndices;
+		verticesCounter += mesh->mNumVertices;
 	}
 
 	//ModelVertices.clear();
