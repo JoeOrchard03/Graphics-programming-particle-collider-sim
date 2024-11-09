@@ -84,8 +84,8 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 			aiFace& face = mesh->mFaces[i];
 			for (unsigned j = 0; j < face.mNumIndices; j++)
 			{
-				//Sends the index data back to model indices
-				ModelIndices.push_back(face.mIndices[j]);
+				//Sends the index data back to model indices, also offset by vertices counter so that the mesh uses the indices for the right set of vertices
+				ModelIndices.push_back(face.mIndices[j] + verticesCounter);
 			}
 		}
 		

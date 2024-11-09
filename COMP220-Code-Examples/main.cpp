@@ -264,16 +264,17 @@ int main(int argc, char ** argsv)
 	//Crate identity matrix
 	glm::mat4 crateModel = glm::mat4(1.0f);
 	crateModel = glm::scale(crateModel,glm::vec3(0.01f,0.01f,0.01f));
+	crateModel = glm::translate(crateModel, glm::vec3(500.0f, 0.0f, -25.0f));
 	
 	//Teapot identiy matrix
-	glm::mat4 teapotModel = glm::mat4(1.0f);
-	teapotModel = glm::scale(teapotModel, glm::vec3(0.5f, 0.5f, 0.5f));
-	//Move pot to the right so it is outside of the crate
-	teapotModel = glm::translate(teapotModel, glm::vec3(20.0f, 0.0f, -25.0f));
+	glm::mat4 model2 = glm::mat4(1.0f);
+	model2 = glm::scale(model2, glm::vec3(0.5f, 0.5f, 0.5f));
+	//Move model to the right so it is outside of the crate
+	model2 = glm::translate(model2, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	//Setup matricies
 	glm::mat4 crateMVP, //Crate identity matrix
-		teapotMVP, //Teapot identity matrix
+		model2MVP, //Teapot identity matrix
 		view, //View matrix - handles everything that the camera sees
 		projection; //Projection matrix - gives the camera depth perspective
 
@@ -412,7 +413,7 @@ int main(int argc, char ** argsv)
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		crateModel = glm::rotate(crateModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
-		teapotModel = glm::rotate(teapotModel, glm::radians(10.0f), glm::vec3(0.0, 0.1, 0.1));
+		model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
@@ -427,7 +428,7 @@ int main(int argc, char ** argsv)
 
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
-		teapotMVP = projection * view * teapotModel;
+		model2MVP = projection * view * model2;
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -447,9 +448,9 @@ int main(int argc, char ** argsv)
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
 		//Draw teapot
-		teapotMVP = projection * view * teapotModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(teapotMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
+		model2MVP = projection * view * model2;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model2MVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
