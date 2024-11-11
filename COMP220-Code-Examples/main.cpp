@@ -99,7 +99,7 @@ void IntializeGlew()
 
 void HandleInput(SDL_Event ev)
 {
-	//Switch case for every message we are intereted in
+	//Switch case for every relevant input
 	switch (ev.type)
 	{
 		//QUIT Message, usually called when the window has been closed
@@ -121,7 +121,6 @@ void HandleInput(SDL_Event ev)
 		//Check the actual key code of the key that has been pressed
 		switch (ev.key.keysym.sym)
 		{
-			//Escape key
 		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
 			running = false;
 			break;

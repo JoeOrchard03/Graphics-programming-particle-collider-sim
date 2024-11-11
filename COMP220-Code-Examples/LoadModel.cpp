@@ -38,6 +38,7 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 	ModelVertices.clear();
 	ModelIndices.clear();
 
+	//Vertices counter for keeping track of how many vertices have been looped through, so they do not get overwritten
 	unsigned int verticesCounter = 0;
 
 	//Clears the vertices from the previous call of load model, if previous model is done loading this wont delete it
@@ -54,8 +55,6 @@ bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::ve
 		//Loops through each vertex in the mesh and assigns the meshes' co-ords to the corresponding axis of the model vertices variable
 		for (unsigned j = 0; j < mesh->mNumVertices; j++)
 		{
-			//std::cout << "j= " << j << ", mesh vertices= " << mesh->mNumVertices << std::endl;
-
 			ModelVertices[j + verticesCounter].x = mesh->mVertices[j].x;
 			ModelVertices[j + verticesCounter].y = mesh->mVertices[j].y;
 			ModelVertices[j + verticesCounter].z = mesh->mVertices[j].z;
