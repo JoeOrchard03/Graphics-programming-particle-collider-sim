@@ -160,7 +160,7 @@ int main(int argc, char ** argsv)
 	LoadModel("Crate.fbx", vertices, indices, texturePath);
 	
 	////LoadModel
-	LoadModel("Survival_BackPack_2.fbx", vertices2, indices2, texturePath2);
+	LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
 
 	//LoadModel
 	//LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
@@ -180,7 +180,7 @@ int main(int argc, char ** argsv)
 	//	return 1;
 	//}
 
-	SDL_Surface* image2 = IMG_Load("tex/backpack_albedo.png");
+	SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
 
 	// Create one OpenGL texture
 	GLuint textureID;
@@ -261,19 +261,19 @@ int main(int argc, char ** argsv)
 		"fragShader_post.glsl");
 
 	//Crate identity matrix
-	glm::mat4 crateModel = glm::mat4(1.0f);
-	crateModel = glm::scale(crateModel,glm::vec3(0.01f,0.01f,0.01f));
-	crateModel = glm::translate(crateModel, glm::vec3(500.0f, 0.0f, -25.0f));
+	glm::mat4 glassPlaneModel = glm::mat4(1.0f);
+	glassPlaneModel = glm::scale(glassPlaneModel,glm::vec3(0.01f,0.01f,0.001f));
+	glassPlaneModel = glm::translate(glassPlaneModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	
 	//Teapot identiy matrix
-	glm::mat4 model2 = glm::mat4(1.0f);
-	model2 = glm::scale(model2, glm::vec3(0.5f, 0.5f, 0.5f));
+	glm::mat4 particleModel = glm::mat4(1.0f);
+	particleModel = glm::scale(particleModel, glm::vec3(0.005f, 0.005f, 0.005f));
 	//Move model to the right so it is outside of the crate
-	model2 = glm::translate(model2, glm::vec3(0.0f, 0.0f, 0.0f));
+	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, -200.0f));
 
 	//Setup matricies
-	glm::mat4 crateMVP, //Crate identity matrix
-		model2MVP, //Teapot identity matrix
+	glm::mat4 glassPlaneMVP, //Crate identity matrix
+		particleMVP, //Teapot identity matrix
 		view, //View matrix - handles everything that the camera sees
 		projection; //Projection matrix - gives the camera depth perspective
 
@@ -411,8 +411,8 @@ int main(int argc, char ** argsv)
 		int viewLoc = glGetUniformLocation(shaderProgram, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		crateModel = glm::rotate(crateModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
-		model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		//glassPlaneModel = glm::rotate(glassPlaneModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		//particleModel = glm::rotate(particleModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
 		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
@@ -427,7 +427,7 @@ int main(int argc, char ** argsv)
 
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
-		model2MVP = projection * view * model2;
+		particleMVP = projection * view * particleModel;
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -439,17 +439,17 @@ int main(int argc, char ** argsv)
 		}
 
 		// Draw crate
-		crateMVP = projection * view * crateModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(crateMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(crateModel));
+		glassPlaneMVP = projection * view * glassPlaneModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneModel));
 		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
 		//Draw teapot
-		model2MVP = projection * view * model2;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model2MVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
+		particleMVP = projection * view * particleModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
