@@ -158,19 +158,102 @@ int main(int argc, char ** argsv)
 
 	////LoadModel
 	//LoadModel("Crate.fbx", vertices, indices, texturePath);
+	//
+	//////LoadModel
+	//LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
+
+	//LoadModel
+	//LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
 
 	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
+	//hard coded texture path
+	//SDL_Surface* image = IMG_Load("tex/crate_color.png");
+
+	//only load texture path if exists
+	//SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
+	//if (hasTexture && !image2) {
+	//	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
+	//	SDL_DestroyWindow(window);
+	//	SDL_Quit();
+	//	return 1;
+	//}
+
+	//SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
+
 	// Create one OpenGL texture
 	GLuint textureID;
 
-	// Nice trilinear filtering.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	////Create buffer objects
+	//unsigned int VBO, VAO, EBO;
+	////Initalise them
+	//glGenVertexArrays(1, &VAO);
+	//glGenBuffers(1, &VBO);
+	//glGenBuffers(1, &EBO);
+	////Load all their attributes and stuff in this function
+	//LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
+
+	//Create texture and buffer objects for other model
+	GLuint textureID2;
+
+	//unsigned int VBO2, VAO2, EBO2;
+	////Initalise them
+	//glGenVertexArrays(1, &VAO2);
+	//glGenBuffers(1, &VBO2);
+	//glGenBuffers(1, &EBO2);
+	////Load all their attributes and stuff in this function
+	//LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
+
+	////Texture binding for first model
+	//if (image) {
+	//	//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
+
+	//	//IF IMAGE BREAKING CHECK THIS
+	//	glGenTextures(1, &textureID);
+
+	//	// "Bind" the newly created texture : all future texture functions will modify this texture
+	//	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	//	int Mode = GL_RGB;
+
+	//	if (image->format->BytesPerPixel == 4) {
+	//		Mode = GL_RGBA;
+	//	}
+	//	glTexImage2D(GL_TEXTURE_2D, 0, Mode, image->w, image->h, 0, Mode, GL_UNSIGNED_BYTE, image->pixels);
+
+	//	// Nice trilinear filtering.
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//}
+
+	////Texture binding for second model
+	//if (image2) {
+	//	//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
+
+	//	//IF IMAGE BREAKING CHECK THIS
+	//	glGenTextures(1, &textureID2);
+
+	//	// "Bind" the newly created texture : all future texture functions will modify this texture
+	//	glBindTexture(GL_TEXTURE_2D, textureID2);
+
+	//	int Mode = GL_RGB;
+
+	//	if (image2->format->BytesPerPixel == 4) {
+	//		Mode = GL_RGBA;
+	//	}
+	//	glTexImage2D(GL_TEXTURE_2D, 0, Mode, image2->w, image2->h, 0, Mode, GL_UNSIGNED_BYTE, image2->pixels);
+
+	//	// Nice trilinear filtering.
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//}
 
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
@@ -179,7 +262,7 @@ int main(int argc, char ** argsv)
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
 
-	float vertices[] = {
+	float cubeVertices[] = {
 		// positions          // texture Coords
 		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		  0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -187,72 +270,80 @@ int main(int argc, char ** argsv)
 		  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f
+	};
 
-		 - 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	float planeVertices[] = {
+		// positions          // texture Coords 
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+	};
+	float transparentVertices[] = {
+		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
 	};
 
 	// cube VAO
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	unsigned int cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// plane VAO
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// transparent VAO
+	unsigned int transparentVAO, transparentVBO;
+	glGenVertexArrays(1, &transparentVAO);
+	glGenBuffers(1, &transparentVBO);
+	glBindVertexArray(transparentVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
 
-	unsigned int texture1, texture2;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	unsigned int cubeTexture = IMG_LoadTexture
+
+	//Crate identity matrix
+	glm::mat4 glassPlaneModel = glm::mat4(1.0f);
+	glassPlaneModel = glm::scale(glassPlaneModel,glm::vec3(0.01f,0.01f,0.001f));
+	glassPlaneModel = glm::translate(glassPlaneModel, glm::vec3(0.0f, 0.0f, 0.0f));
+	
+	//Teapot identiy matrix
+	glm::mat4 particleModel = glm::mat4(1.0f);
+	particleModel = glm::scale(particleModel, glm::vec3(0.005f, 0.005f, 0.005f));
+	//Move model to the right so it is outside of the crate
+	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, -200.0f));
 
 	//Setup matricies
-	glm::mat4 model, //Crate identity matrix
-		modelMVP, //Teapot identity matrix
+	glm::mat4 glassPlaneMVP, //Crate identity matrix
+		particleMVP, //Teapot identity matrix
 		view, //View matrix - handles everything that the camera sees
 		projection; //Projection matrix - gives the camera depth perspective
 
@@ -381,9 +472,6 @@ int main(int argc, char ** argsv)
 
 		//use imported shader program(s)
 		glUseProgram(shaderProgram);
-
-		glm::mat4 model = glm::mat4(1.0f);
-
 		//Represents where the camera is in 3D space
 		int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
 		glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
@@ -393,8 +481,9 @@ int main(int argc, char ** argsv)
 		int viewLoc = glGetUniformLocation(shaderProgram, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//glassPlaneModel = glm::rotate(glassPlaneModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		//particleModel = glm::rotate(particleModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
+		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
 
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
@@ -407,7 +496,8 @@ int main(int argc, char ** argsv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
-		modelMVP = projection * view * model;
+		//glm::ortho for orthographic
+		particleMVP = projection * view * particleModel;
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -418,16 +508,21 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		// Draw crate
+		glassPlaneMVP = projection * view * glassPlaneModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneModel));
+		glBindVertexArray(VAO);
+		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
-		//// Draw crate
-		//glassPlaneMVP = projection * view * mod;
-		//glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneModel));
-		//glBindVertexArray(VAO);
-		//if(image) glBindTexture(GL_TEXTURE_2D, textureID);
-		//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		//Draw teapot
+		particleMVP = projection * view * particleModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
+		glBindVertexArray(VAO2);
+		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
+		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -443,6 +538,14 @@ int main(int argc, char ** argsv)
 		
 		SDL_GL_SwapWindow(window);
 	}
+
+	//clear memory before exit
+	glDisableVertexAttribArray(0);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+
+	SDL_FreeSurface(image);
+	SDL_GL_DeleteContext(glContext);
 
 	glDeleteProgram(shaderProgram);
 	SDL_GL_DeleteContext(glContext);
