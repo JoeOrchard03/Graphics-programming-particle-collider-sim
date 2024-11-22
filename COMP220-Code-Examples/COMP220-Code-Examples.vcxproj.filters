@@ -47,5 +47,6 @@
     <None Include="BasicFrag.glsl" />
     <None Include="vertShader_post.glsl" />
     <None Include="fragShader_post.glsl" />
+    <None Include="TransparentFrag.glsl" />
   </ItemGroup>
 </Project>

@@ -259,17 +259,18 @@ int main(int argc, char ** argsv)
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
+	GLuint transparentShader = LoadShaders("BasicVert.glsl", "TransparentFrag.glsl");
 
 	//Crate identity matrix
 	glm::mat4 glassPlaneModel = glm::mat4(1.0f);
-	glassPlaneModel = glm::scale(glassPlaneModel,glm::vec3(0.01f,0.01f,0.001f));
+	glassPlaneModel = glm::scale(glassPlaneModel,glm::vec3(0.001f,0.001f,0.001f));
 	glassPlaneModel = glm::translate(glassPlaneModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	
 	//Teapot identiy matrix
 	glm::mat4 particleModel = glm::mat4(1.0f);
-	particleModel = glm::scale(particleModel, glm::vec3(0.005f, 0.005f, 0.005f));
+	particleModel = glm::scale(particleModel, glm::vec3(0.01f, 0.01f, 0.001f));
 	//Move model to the right so it is outside of the crate
-	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, -200.0f));
+	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1000.0f));
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Crate identity matrix
@@ -438,7 +439,8 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		// Draw crate
+		// Draw glass plane
+		glUseProgram(shaderProgram);
 		glassPlaneMVP = projection * view * glassPlaneModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneModel));
@@ -446,7 +448,8 @@ int main(int argc, char ** argsv)
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
-		//Draw teapot
+		//Draw particle
+		glUseProgram(transparentShader);
 		particleMVP = projection * view * particleModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));

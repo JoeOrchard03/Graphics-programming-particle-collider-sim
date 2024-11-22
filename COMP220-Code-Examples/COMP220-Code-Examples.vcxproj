@@ -174,6 +174,7 @@ copy ..\Libraries\assimp-4.1.0\bin\x64\assimp-vc140-mt.dll "$(OutDir)\assimp-vc1
     <None Include="BasicFrag.glsl" />
     <None Include="BasicVert.glsl" />
     <None Include="fragShader_post.glsl" />
+    <None Include="TransparentFrag.glsl" />
     <None Include="vertShader_post.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
