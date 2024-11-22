@@ -156,11 +156,11 @@ int main(int argc, char ** argsv)
 	//Initalize Glew
 	IntializeGlew();
 
+	//LoadModel
+	LoadModel("Crate.fbx", vertices, indices, texturePath);
+	
 	////LoadModel
-	//LoadModel("Crate.fbx", vertices, indices, texturePath);
-	//
-	//////LoadModel
-	//LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
+	LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
 
 	//LoadModel
 	//LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
@@ -169,7 +169,7 @@ int main(int argc, char ** argsv)
 	bool hasTexture = !texturePath.empty();
 
 	//hard coded texture path
-	//SDL_Surface* image = IMG_Load("tex/crate_color.png");
+	SDL_Surface* image = IMG_Load("tex/crate_color.png");
 
 	//only load texture path if exists
 	//SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
@@ -180,80 +180,78 @@ int main(int argc, char ** argsv)
 	//	return 1;
 	//}
 
-	//SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
+	SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
 
 	// Create one OpenGL texture
 	GLuint textureID;
-
-	////Create buffer objects
-	//unsigned int VBO, VAO, EBO;
-	////Initalise them
-	//glGenVertexArrays(1, &VAO);
-	//glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
-	////Load all their attributes and stuff in this function
-	//LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
+	//Create buffer objects
+	unsigned int VBO, VAO, EBO;
+	//Initalise them
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	//Load all their attributes and stuff in this function
+	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
 	//Create texture and buffer objects for other model
 	GLuint textureID2;
+	unsigned int VBO2, VAO2, EBO2;
+	//Initalise them
+	glGenVertexArrays(1, &VAO2);
+	glGenBuffers(1, &VBO2);
+	glGenBuffers(1, &EBO2);
+	//Load all their attributes and stuff in this function
+	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
-	//unsigned int VBO2, VAO2, EBO2;
-	////Initalise them
-	//glGenVertexArrays(1, &VAO2);
-	//glGenBuffers(1, &VBO2);
-	//glGenBuffers(1, &EBO2);
-	////Load all their attributes and stuff in this function
-	//LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
+	//Texture binding for first model
+	if (image) {
+		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
-	////Texture binding for first model
-	//if (image) {
-	//	//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
+		//IF IMAGE BREAKING CHECK THIS
+		glGenTextures(1, &textureID);
 
-	//	//IF IMAGE BREAKING CHECK THIS
-	//	glGenTextures(1, &textureID);
+		// "Bind" the newly created texture : all future texture functions will modify this texture
+		glBindTexture(GL_TEXTURE_2D, textureID);
 
-	//	// "Bind" the newly created texture : all future texture functions will modify this texture
-	//	glBindTexture(GL_TEXTURE_2D, textureID);
+		int Mode = GL_RGB;
 
-	//	int Mode = GL_RGB;
+		if (image->format->BytesPerPixel == 4) {
+			Mode = GL_RGBA;
+		}
+		glTexImage2D(GL_TEXTURE_2D, 0, Mode, image->w, image->h, 0, Mode, GL_UNSIGNED_BYTE, image->pixels);
 
-	//	if (image->format->BytesPerPixel == 4) {
-	//		Mode = GL_RGBA;
-	//	}
-	//	glTexImage2D(GL_TEXTURE_2D, 0, Mode, image->w, image->h, 0, Mode, GL_UNSIGNED_BYTE, image->pixels);
+		// Nice trilinear filtering.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
 
-	//	// Nice trilinear filtering.
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-	//}
+	//Texture binding for second model
+	if (image2) {
+		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
-	////Texture binding for second model
-	//if (image2) {
-	//	//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
+		//IF IMAGE BREAKING CHECK THIS
+		glGenTextures(1, &textureID2);
 
-	//	//IF IMAGE BREAKING CHECK THIS
-	//	glGenTextures(1, &textureID2);
+		// "Bind" the newly created texture : all future texture functions will modify this texture
+		glBindTexture(GL_TEXTURE_2D, textureID2);
 
-	//	// "Bind" the newly created texture : all future texture functions will modify this texture
-	//	glBindTexture(GL_TEXTURE_2D, textureID2);
+		int Mode = GL_RGB;
 
-	//	int Mode = GL_RGB;
+		if (image2->format->BytesPerPixel == 4) {
+			Mode = GL_RGBA;
+		}
+		glTexImage2D(GL_TEXTURE_2D, 0, Mode, image2->w, image2->h, 0, Mode, GL_UNSIGNED_BYTE, image2->pixels);
 
-	//	if (image2->format->BytesPerPixel == 4) {
-	//		Mode = GL_RGBA;
-	//	}
-	//	glTexImage2D(GL_TEXTURE_2D, 0, Mode, image2->w, image2->h, 0, Mode, GL_UNSIGNED_BYTE, image2->pixels);
-
-	//	// Nice trilinear filtering.
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-	//}
+		// Nice trilinear filtering.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
 
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
@@ -261,74 +259,6 @@ int main(int argc, char ** argsv)
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
-
-	float cubeVertices[] = {
-		// positions          // texture Coords
-		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		  0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f
-	};
-
-	float planeVertices[] = {
-		// positions          // texture Coords 
-		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-
-		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
-	};
-	float transparentVertices[] = {
-		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-	};
-
-	// cube VAO
-	unsigned int cubeVAO, cubeVBO;
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &cubeVBO);
-	glBindVertexArray(cubeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	// plane VAO
-	unsigned int planeVAO, planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	// transparent VAO
-	unsigned int transparentVAO, transparentVBO;
-	glGenVertexArrays(1, &transparentVAO);
-	glGenBuffers(1, &transparentVBO);
-	glBindVertexArray(transparentVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindVertexArray(0);
-
-	unsigned int cubeTexture = IMG_LoadTexture
 
 	//Crate identity matrix
 	glm::mat4 glassPlaneModel = glm::mat4(1.0f);
