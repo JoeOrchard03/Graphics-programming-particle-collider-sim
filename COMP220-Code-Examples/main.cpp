@@ -262,15 +262,15 @@ int main(int argc, char ** argsv)
 	GLuint transparentShader = LoadShaders("BasicVert.glsl", "TransparentFrag.glsl");
 
 	//Crate identity matrix
-	glm::mat4 glassPlaneModel = glm::mat4(1.0f);
-	glassPlaneModel = glm::scale(glassPlaneModel,glm::vec3(0.001f,0.001f,0.001f));
-	glassPlaneModel = glm::translate(glassPlaneModel, glm::vec3(0.0f, 0.0f, 0.0f));
+	glm::mat4 particleModel = glm::mat4(1.0f);
+	particleModel = glm::scale(particleModel,glm::vec3(0.001f,0.001f,0.001f));
+	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	
 	//Teapot identiy matrix
-	glm::mat4 particleModel = glm::mat4(1.0f);
-	particleModel = glm::scale(particleModel, glm::vec3(0.01f, 0.01f, 0.001f));
+	glm::mat4 glassModel = glm::mat4(1.0f);
+	glassModel = glm::scale(glassModel, glm::vec3(0.01f, 0.01f, 0.001f));
 	//Move model to the right so it is outside of the crate
-	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1000.0f));
+	glassModel = glm::translate(glassModel, glm::vec3(0.0f, 0.0f, 1000.0f));
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Crate identity matrix
@@ -428,7 +428,7 @@ int main(int argc, char ** argsv)
 
 		projection = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
 		//glm::ortho for orthographic
-		particleMVP = projection * view * particleModel;
+		glassPlaneMVP = projection * view * glassModel;
 
 		//if there is a texture it disables the colour and lets the texture handle it
 		if (hasTexture) {
@@ -439,23 +439,25 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		// Draw glass plane
+		// Draw particle
 		glUseProgram(shaderProgram);
-		glassPlaneMVP = projection * view * glassPlaneModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneModel));
+		particleMVP = projection * view * particleModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		glBindVertexArray(VAO);
 		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
-		//Draw particle
+		//Draw glass pane
 		glUseProgram(transparentShader);
-		particleMVP = projection * view * particleModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
+		glassPlaneMVP = projection * view * glassModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassModel));
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
+
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
