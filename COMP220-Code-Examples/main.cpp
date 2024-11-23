@@ -439,6 +439,9 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
+		//This is how to get random number between 0 and max number in this case 7 
+		std::cout << "random number is: " << rand() % 7 + 1 << std::endl;
+
 		// Draw particle
 		glUseProgram(shaderProgram);
 		particleMVP = projection * view * particleModel;
