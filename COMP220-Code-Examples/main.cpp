@@ -455,17 +455,13 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		// Draw particle
-		for (int i = 0; i < numOfBoxes; i++)
-		{
-			glUseProgram(shaderProgram);
-			particleMVP = projection * view * particleModel;
-			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
-			glBindVertexArray(VAO);
-			if (image) glBindTexture(GL_TEXTURE_2D, textureID);
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		}
+		glBindVertexArray(VAO);
+		glUseProgram(shaderProgram);
+		particleMVP = projection * view * particleModel;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
+		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 
 		//Draw glass pane
 		glUseProgram(transparentShader);
@@ -475,8 +471,6 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
-
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
