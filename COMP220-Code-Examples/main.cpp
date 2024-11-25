@@ -1,3 +1,5 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <iostream>
 #include <SDL.h>
 #include <gl\glew.h>
@@ -7,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "glm/ext.hpp"
 
 #include <assimp/Importer.hpp>	
 #include <assimp/scene.h>	
@@ -361,6 +364,19 @@ int main(int argc, char ** argsv)
 		3, 2, 0
 	};
 
+	//Number of boxes to spawn to represent particles
+	unsigned int numOfBoxes = 10;
+
+	//Array to store their positions
+	std::vector <glm::vec3> boxPositions;
+
+	//for loop for randomly setting the x and ys of the boxes
+	for (int i = 0; i < numOfBoxes; i++)
+	{
+		boxPositions.push_back(glm::vec3(rand() % 100 + 1, rand() % 100 + 1, 200.0f));
+		std::cout << "Box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
+	}
+
 	//OID means object ID
 	GLuint screenQuadVBOID;
 	glGenBuffers(1, &screenQuadVBOID);
@@ -439,17 +455,17 @@ int main(int argc, char ** argsv)
 			glUniform3f(objColourLoc, 1.0f, 1.0f, 1.0f);
 		}
 
-		//This is how to get random number between 0 and max number in this case 7 
-		std::cout << "random number is: " << rand() % 7 + 1 << std::endl;
-
 		// Draw particle
-		glUseProgram(shaderProgram);
-		particleMVP = projection * view * particleModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
-		glBindVertexArray(VAO);
-		if(image) glBindTexture(GL_TEXTURE_2D, textureID);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		for (int i = 0; i < numOfBoxes; i++)
+		{
+			glUseProgram(shaderProgram);
+			particleMVP = projection * view * particleModel;
+			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
+			glBindVertexArray(VAO);
+			if (image) glBindTexture(GL_TEXTURE_2D, textureID);
+			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		}
 
 		//Draw glass pane
 		glUseProgram(transparentShader);
