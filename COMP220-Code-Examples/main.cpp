@@ -472,6 +472,8 @@ int main(int argc, char ** argsv)
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
+
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.1f);
