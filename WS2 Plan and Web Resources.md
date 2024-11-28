@@ -13,6 +13,7 @@ https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection - Lea
 
 https://www.diva-portal.org/smash/get/diva2:1571363/FULLTEXT01.pdf - Paper on representing raindrops collecting on a windshield using a graphics application, similar to what I am doing
 
+
 Resource references:
 - YouTube. https://www.youtube.com/watch?v=crOfyWiWxmc. Accessed 25 Nov. 2024.
 
