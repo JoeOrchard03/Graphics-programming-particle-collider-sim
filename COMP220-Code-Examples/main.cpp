@@ -428,10 +428,6 @@ int main(int argc, char ** argsv)
 		int viewLoc = glGetUniformLocation(shaderProgram, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		//glassPlaneModel = glm::rotate(glassPlaneModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
-		//particleModel = glm::rotate(particleModel, glm::radians(1.0f), glm::vec3(0.0, 0.1, 0.1));
-		//model = glm::translate(model, glm::vec3(0, 0.01, -0.01f));
-
 		//Bind the framebuffer - making a new frame and loading that frame into the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 		//Note later disable!
