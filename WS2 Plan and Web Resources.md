@@ -8,10 +8,14 @@ Moving forward to refine my artefact I want to look into the particle simulation
 
 Web resources:
 https://www.youtube.com/watch?v=crOfyWiWxmc - video by Victor Gordan https://www.youtube.com/@VictorGordan on transparency and blending.
+
 https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection - LearnOpenGL Collision detection for 2D, my artefact will be 3D but good background info
+
 https://www.diva-portal.org/smash/get/diva2:1571363/FULLTEXT01.pdf - Paper on representing raindrops collecting on a windshield using a graphics application, similar to what I am doing
 
 Resource references:
 - YouTube. https://www.youtube.com/watch?v=crOfyWiWxmc. Accessed 25 Nov. 2024.
+
 LearnOpenGL - Collision Detection. https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection. Accessed 25 Nov. 2024.
+
 Koblik, Katerina. Simulation of Rain on a Windshield : Creating a Real-Time Effect Using GPGPU Computing. 2021. www.diva-portal.org, https://urn.kb.se/resolve?urn=urn:nbn:se:umu:diva-185027.
