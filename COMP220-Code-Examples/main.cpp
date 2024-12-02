@@ -51,6 +51,9 @@ const glm::vec4 cameraFace(0, 0, -1, 0);
 glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
+//Number of boxes to spawn to represent particles
+unsigned int numOfBoxes = 10;
+
 SDL_Window* CreateWindow()
 {
 	//Initialises the SDL Library, passing in SDL_INIT_VIDEO to only initialise the video subsystems
@@ -364,16 +367,18 @@ int main(int argc, char ** argsv)
 		3, 2, 0
 	};
 
-	//Number of boxes to spawn to represent particles
-	unsigned int numOfBoxes = 10;
-
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
+	glm::mat4 boxModels[10];
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
 	{
-		boxPositions.push_back(glm::vec3(rand() % 100 + 1, rand() % 100 + 1, 200.0f));
+		boxPositions.push_back(glm::vec3(rand() % 500 + 1, rand() % 500 + 1, 200.0f));
+		glm::mat4 newBoxModel = glm::mat4(1.0f);
+		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
+		boxModels[i] = newBoxModel;
 		std::cout << "Box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
 	}
 
@@ -458,6 +463,14 @@ int main(int argc, char ** argsv)
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+
+		for (int i = 0; i < numOfBoxes; i++)
+		{
+			particleMVP = projection * view * boxModels[i];
+			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
+			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		}
 
 		//Draw glass pane
 		glUseProgram(transparentShader);
