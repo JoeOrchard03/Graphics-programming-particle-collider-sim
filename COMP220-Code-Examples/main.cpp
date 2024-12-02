@@ -53,6 +53,8 @@ const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
 unsigned int numOfBoxes = 10;
+//unsigned int numOfBoxes = 100;
+//unsigned int numOfBoxes = 1000;
 
 SDL_Window* CreateWindow()
 {
@@ -267,20 +269,20 @@ int main(int argc, char ** argsv)
 		"fragShader_post.glsl");
 	GLuint transparentShader = LoadShaders("BasicVert.glsl", "TransparentFrag.glsl");
 
-	//Crate identity matrix
+	//Particle identity matrix
 	glm::mat4 particleModel = glm::mat4(1.0f);
 	particleModel = glm::scale(particleModel,glm::vec3(0.001f,0.001f,0.001f));
 	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	
-	//Teapot identiy matrix
+	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
 	glassModel = glm::scale(glassModel, glm::vec3(0.01f, 0.01f, 0.001f));
-	//Move model to the right so it is outside of the crate
+	//Move glass to the right so the particle does not spawn inside of it
 	glassModel = glm::translate(glassModel, glm::vec3(0.0f, 0.0f, 1000.0f));
 
 	//Setup matricies
-	glm::mat4 glassPlaneMVP, //Crate identity matrix
-		particleMVP, //Teapot identity matrix
+	glm::mat4 glassPlaneMVP, //Glass plane model, view, projection matrix
+		particleMVP, //Particle model, view, projection matrix
 		view, //View matrix - handles everything that the camera sees
 		projection; //Projection matrix - gives the camera depth perspective
 
@@ -370,11 +372,13 @@ int main(int argc, char ** argsv)
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
 	glm::mat4 boxModels[10];
+	/*glm::mat4 boxModels[100];
+	glm::mat4 boxModels[1000];*/
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
 	{
-		boxPositions.push_back(glm::vec3(rand() % 500 + 1, rand() % 500 + 1, 200.0f));
+		boxPositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
 		glm::mat4 newBoxModel = glm::mat4(1.0f);
 		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
@@ -463,13 +467,17 @@ int main(int argc, char ** argsv)
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
+		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
+			//Update the 
 			particleMVP = projection * view * boxModels[i];
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
 		}
 
 		//Draw glass pane
@@ -481,7 +489,7 @@ int main(int argc, char ** argsv)
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
+		
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
