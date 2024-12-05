@@ -28,7 +28,15 @@ Average usage is still 5 percent however the peak has increased again to 8 perce
 
 ![alt text](image-7.png)
 
-As expected the link library is still using the most of the resources, however it's usage has gone down instead of increasing which I was not expecting. Also the "glm::operator* <float,0>" operation has over taken the sld2_image call for the second most resource heavy operation. Increasing from 0.12 to 0.92 when going from 10 to 100 models. I would expect this value to keep increasing as I keep adding models.
+As expected the link library is still using the most of the resources, however it's usage has gone down instead of increasing which I was not expecting, this is likely due to the "glm::operator* <float,0>" operation which has over taken the sld2_image call for the second most resource heavy operation. Increasing from 0.12 to 0.92 when going from 10 to 100 models. I would expect this value to keep increasing as I keep adding models.
 
 ### 1000 models loaded:
 
+![alt text](image-8.png)
+
+Average use is still 5 percent and the peak has not increased by 8 percent when I was expecting it to when increasing the amount of models again.
+
+![alt text](image-9.png)
+![alt text](image-10.png)
+
+When increasing to loading 1000 models the "glm::operator* <float,0>" usage has multiplied by almost 10. I expect it to continue to increase as more models are added.

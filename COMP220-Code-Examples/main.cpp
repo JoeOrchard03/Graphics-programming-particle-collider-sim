@@ -55,6 +55,7 @@ const float walkspeed = 0.2f, rotSpeed = 0.1f;
 //unsigned int numOfBoxes = 10;
 //unsigned int numOfBoxes = 100;
 unsigned int numOfBoxes = 1000;
+//unsigned int numOfBoxes = 10000;
 
 SDL_Window* CreateWindow()
 {
@@ -374,6 +375,7 @@ int main(int argc, char ** argsv)
 	//glm::mat4 boxModels[10];
 	//glm::mat4 boxModels[100];
 	glm::mat4 boxModels[1000];
+	//glm::mat4 boxModels[10000];
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
@@ -472,7 +474,6 @@ int main(int argc, char ** argsv)
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
-			//Update the 
 			particleMVP = projection * view * boxModels[i];
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
