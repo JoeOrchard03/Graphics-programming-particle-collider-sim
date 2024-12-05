@@ -52,9 +52,9 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-unsigned int numOfBoxes = 10;
+//unsigned int numOfBoxes = 10;
 //unsigned int numOfBoxes = 100;
-//unsigned int numOfBoxes = 1000;
+unsigned int numOfBoxes = 1000;
 
 SDL_Window* CreateWindow()
 {
@@ -371,9 +371,9 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	glm::mat4 boxModels[10];
-	/*glm::mat4 boxModels[100];
-	glm::mat4 boxModels[1000];*/
+	//glm::mat4 boxModels[10];
+	//glm::mat4 boxModels[100];
+	glm::mat4 boxModels[1000];
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
@@ -462,12 +462,12 @@ int main(int argc, char ** argsv)
 
 		glBindVertexArray(VAO);
 		glUseProgram(shaderProgram);
-		particleMVP = projection * view * particleModel;
+		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
+		/*particleMVP = projection * view * particleModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
-		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
 
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
