@@ -52,10 +52,10 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-//unsigned int numOfBoxes = 10;
+unsigned int numOfBoxes = 10;
 //unsigned int numOfBoxes = 100;
 //unsigned int numOfBoxes = 1000;
-unsigned int numOfBoxes = 100000;
+//unsigned int numOfBoxes = 100000;
 
 SDL_Window* CreateWindow()
 {
@@ -372,10 +372,10 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	//glm::mat4 boxModels[10];
+	glm::mat4 boxModels[10];
 	//glm::mat4 boxModels[100];
 	//glm::mat4 boxModels[1000];
-	glm::mat4 boxModels[100000];
+	//glm::mat4 boxModels[100000];
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)

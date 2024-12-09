@@ -1,0 +1,12 @@
+Particle object - insde:
+Draw function - Be box models for now pass into draw parameter
+Velocity variable 
+Position variable
+Tick function - Collision checker and movement handler
+
+With particle object:
+Have an array of them 
+Call tick then draw, repeating
+
+Implement AABB collision
+
