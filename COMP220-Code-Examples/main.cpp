@@ -52,10 +52,16 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-unsigned int numOfBoxes = 10;
+unsigned int numOfBoxes = 1;
+//unsigned int numOfBoxes = 10;
 //unsigned int numOfBoxes = 100;
 //unsigned int numOfBoxes = 1000;
 //unsigned int numOfBoxes = 100000;
+
+
+glm::vec2 position;
+glm::vec2 previous_position;
+glm::vec2 acceleration;
 
 SDL_Window* CreateWindow()
 {
@@ -272,9 +278,14 @@ int main(int argc, char ** argsv)
 
 	//Particle identity matrix
 	glm::mat4 particleModel = glm::mat4(1.0f);
-	particleModel = glm::scale(particleModel,glm::vec3(0.001f,0.001f,0.001f));
+	glm::vec3 particleModelScale = glm::vec3(0.001f, 0.001f, 0.001f);
+	particleModel = glm::scale(particleModel, particleModelScale);
 	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
-	
+	position = glm::vec2(0, 0);
+	position.x = position.x - (particleModelScale.x * 0.5);
+	position.y = position.y - (particleModelScale.y * 0.5);
+	std::cout << "Box position is: " << glm::to_string(position) << std::endl;
+
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
 	glassModel = glm::scale(glassModel, glm::vec3(0.01f, 0.01f, 0.001f));
@@ -372,21 +383,23 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	glm::mat4 boxModels[10];
+	glm::mat4 boxModels[1];
+	//glm::mat4 boxModels[10];
 	//glm::mat4 boxModels[100];
 	//glm::mat4 boxModels[1000];
 	//glm::mat4 boxModels[100000];
 
 	//for loop for randomly setting the x and ys of the boxes
-	for (int i = 0; i < numOfBoxes; i++)
-	{
-		boxPositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
-		glm::mat4 newBoxModel = glm::mat4(1.0f);
-		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
-		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
-		boxModels[i] = newBoxModel;
-		std::cout << "Box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
-	}
+	//for (int i = 0; i < numOfBoxes; i++)
+	//{
+	//	boxPositions.push_back(glm::vec3(0,0,0));
+	//	//boxPositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
+	//	glm::mat4 newBoxModel = glm::mat4(1.0f);
+	//	newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+	//	newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
+	//	boxModels[i] = newBoxModel;
+	//	std::cout << "Box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
+	//}
 
 	//OID means object ID
 	GLuint screenQuadVBOID;
@@ -465,21 +478,26 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO);
 		glUseProgram(shaderProgram);
 		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
-		/*particleMVP = projection * view * particleModel;
+		particleMVP = projection * view * particleModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
-		//For each item in numOfBoxes
-		for (int i = 0; i < numOfBoxes; i++)
-		{
-			particleMVP = projection * view * boxModels[i];
-			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
-		}
+		glm::vec2 velocity = position - previous_position;
+		previous_position = position;
+		position += velocity + acceleration * (int)SDL_GetTicks;
+		acceleration = glm::vec2(0, 0);
+
+		////For each item in numOfBoxes
+		//for (int i = 0; i < numOfBoxes; i++)
+		//{
+		//	particleMVP = projection * view * boxModels[i];
+		//	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+		//	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
+		//	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		//	boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
+		//}
 
 		//Draw glass pane
 		glUseProgram(transparentShader);
