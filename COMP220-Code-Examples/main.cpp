@@ -60,11 +60,15 @@ unsigned int numOfBoxes = 1;
 
 //Particle position variables
 glm::vec3 particlePosition;
+glm::vec3 topLeftParticlePos;
+glm::vec3 bottomRightParticlePos;
 glm::vec3 particlePreviousPosition;
 glm::vec3 acceleration;
 
 //Glass position variables
 glm::vec3 glassPosition;
+glm::vec3 topLeftGlassPos;
+glm::vec3 bottomRightGlassPos;
 glm::vec3 glassScale;
 
 SDL_Window* CreateWindow()
@@ -286,9 +290,12 @@ int main(int argc, char ** argsv)
 	particleModel = glm::scale(particleModel, particleModelScale);
 	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	particlePosition = glm::vec3(0, 0, 0);
-	particlePosition.x = particlePosition.x - (particlePosition.x * 0.5);
-	particlePosition.y = particlePosition.y - (particlePosition.y * 0.5);
-	std::cout << "Box position is: " << glm::to_string(particlePosition) << std::endl;
+	particlePosition = particlePosition - particlePosition * 0.5;
+	topLeftParticlePos.x = particleModelScale.x * 0.5 - particlePosition.x;
+	topLeftParticlePos.y = particleModelScale.y * 0.5 + particlePosition.y;
+	topLeftParticlePos.z = particleModelScale.z * 0.5 + particlePosition.z;
+	std::cout << "Particle top left position is: " << glm::to_string(topLeftParticlePos) << std::endl;
+	std::cout << "Particle position is: " << glm::to_string(particlePosition) << std::endl;
 
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
@@ -298,6 +305,10 @@ int main(int argc, char ** argsv)
 	glassPosition = glm::vec3(0, 0, 1000);
 	glassModel = glm::translate(glassModel, glm::vec3(glassPosition));
 	glassPosition = glassPosition - glassScale * 0.5;
+	topLeftGlassPos.x = glassScale.x * 0.5 - glassPosition.x;
+	topLeftGlassPos.y = glassScale.y * 0.5 + glassPosition.y;
+	topLeftGlassPos.z = glassScale.z * 0.5 + glassPosition.z;
+	std::cout << "Glass top left position is: " << glm::to_string(topLeftGlassPos) << std::endl;
 	std::cout << "Glass position is: " << glm::to_string(glassPosition) << std::endl;
 
 	//Setup matricies
@@ -492,10 +503,10 @@ int main(int argc, char ** argsv)
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
-		glm::vec2 velocity = particlePosition - particlePreviousPosition;
+		/*glm::vec2 velocity = particlePosition - particlePreviousPosition;
 		particlePreviousPosition = particlePosition;
 		particlePosition += velocity + acceleration * (int)SDL_GetTicks;
-		acceleration = glm::vec2(0, 0);
+		acceleration = glm::vec2(0, 0);*/
 
 		////For each item in numOfBoxes
 		//for (int i = 0; i < numOfBoxes; i++)
