@@ -20,6 +20,7 @@
 #include "LoadModel.h"
 #include "BufferObjectsLoad.h"
 #include <random>
+#include <vector>
 
 //Window
 SDL_Window* window;
@@ -164,6 +165,12 @@ void HandleInput(SDL_Event ev)
 	}
 }
 
+glm::vec3 VertexToVec3(Vertex vertexToConvert)
+{
+	glm::vec3 vertexToReturn = glm::vec3(vertexToConvert.x, vertexToConvert.y, vertexToConvert.z);
+	return vertexToReturn;
+}
+
 int main(int argc, char ** argsv)
 {
 	//Initalize SDL version
@@ -290,12 +297,24 @@ int main(int argc, char ** argsv)
 	particleModel = glm::scale(particleModel, particleModelScale);
 	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	particlePosition = glm::vec3(0, 0, 0);
-	particlePosition = particlePosition - particlePosition * 0.5;
-	topLeftParticlePos.x = particleModelScale.x * 0.5 - particlePosition.x;
-	topLeftParticlePos.y = particleModelScale.y * 0.5 + particlePosition.y;
-	topLeftParticlePos.z = particleModelScale.z * 0.5 + particlePosition.z;
-	std::cout << "Particle top left position is: " << glm::to_string(topLeftParticlePos) << std::endl;
-	std::cout << "Particle position is: " << glm::to_string(particlePosition) << std::endl;
+	/*std::cout << "Particle position is: " << glm::to_string(particlePosition) << std::endl;*/
+
+	Vertex particleMinBound = vertices[0];
+	Vertex particleMaxBound = vertices[0];
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		if (particleMinBound.x > vertices[i].x && particleMinBound.y > vertices[i].y && particleMinBound.z > vertices[i].z)
+		{
+			particleMinBound = vertices[i];
+		}
+		if (particleMaxBound.x < vertices[i].x && particleMaxBound.y < vertices[i].y && particleMaxBound.z < vertices[i].z)
+		{
+			particleMaxBound = vertices[i];
+		}
+	}
+	std::cout << glm::to_string(VertexToVec3(particleMinBound)) << " is the minimum bound of particle" << std::endl;
+	std::cout << glm::to_string(VertexToVec3(particleMaxBound)) << " is the maximum bound of particle" << std::endl;
 
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
@@ -305,11 +324,23 @@ int main(int argc, char ** argsv)
 	glassPosition = glm::vec3(0, 0, 1000);
 	glassModel = glm::translate(glassModel, glm::vec3(glassPosition));
 	glassPosition = glassPosition - glassScale * 0.5;
-	topLeftGlassPos.x = glassScale.x * 0.5 - glassPosition.x;
-	topLeftGlassPos.y = glassScale.y * 0.5 + glassPosition.y;
-	topLeftGlassPos.z = glassScale.z * 0.5 + glassPosition.z;
-	std::cout << "Glass top left position is: " << glm::to_string(topLeftGlassPos) << std::endl;
-	std::cout << "Glass position is: " << glm::to_string(glassPosition) << std::endl;
+
+	Vertex glassMinBound = vertices2[0];
+	Vertex glassMaxBound = vertices2[0];
+
+	for (int i = 0; i < vertices2.size(); i++)
+	{
+		if (glassMinBound.x > vertices2[i].x && glassMinBound.y > vertices2[i].y && glassMinBound.z > vertices2[i].z)
+		{
+			glassMinBound = vertices2[i];
+		}
+		if (glassMaxBound.x < vertices2[i].x && glassMaxBound.y < vertices2[i].y && glassMaxBound.z < vertices2[i].z)
+		{
+			glassMaxBound = vertices2[i];
+		}
+	}
+	std::cout << glm::to_string(VertexToVec3(glassMinBound) * glassScale + glassPosition) << " is the minimum bound of glass" << std::endl;
+	std::cout << glm::to_string(VertexToVec3(glassMaxBound) * glassScale + glassPosition) << " is the maximum bound of glass" << std::endl;
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Glass plane model, view, projection matrix
