@@ -171,6 +171,12 @@ glm::vec3 VertexToVec3(Vertex vertexToConvert)
 	return vertexToReturn;
 }
 
+glm::vec3 Vec4ToVec3(glm::vec4 vec4ToConvert)
+{
+	glm::vec3 vec3ToReturn = glm::vec3(vec4ToConvert.x, vec4ToConvert.y, vec4ToConvert.z);
+	return vec3ToReturn;
+}
+
 int main(int argc, char ** argsv)
 {
 	//Initalize SDL version
@@ -293,54 +299,57 @@ int main(int argc, char ** argsv)
 
 	//Particle identity matrix
 	glm::mat4 particleModel = glm::mat4(1.0f);
+	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	glm::vec3 particleModelScale = glm::vec3(0.001f, 0.001f, 0.001f);
 	particleModel = glm::scale(particleModel, particleModelScale);
-	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
-	particlePosition = glm::vec3(0, 0, 0);
-	/*std::cout << "Particle position is: " << glm::to_string(particlePosition) << std::endl;*/
 
+	//Defining vertexes to be iterated through
 	Vertex particleMinBound = vertices[0];
 	Vertex particleMaxBound = vertices[0];
 
+	glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
+	glm::vec4 transformedParticleMaxBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
+
 	for (int i = 0; i < vertices.size(); i++)
 	{
-		if (particleMinBound.x > vertices[i].x && particleMinBound.y > vertices[i].y && particleMinBound.z > vertices[i].z)
-		{
-			particleMinBound = vertices[i];
-		}
-		if (particleMaxBound.x < vertices[i].x && particleMaxBound.y < vertices[i].y && particleMaxBound.z < vertices[i].z)
-		{
-			particleMaxBound = vertices[i];
-		}
+		glm::vec4 transformedVertex = particleModel * glm::vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0f);
+		transformedParticleMinBound.x = std::min(transformedParticleMinBound.x, transformedVertex.x);
+		transformedParticleMinBound.y = std::min(transformedParticleMinBound.y, transformedVertex.y);
+		transformedParticleMinBound.z = std::min(transformedParticleMinBound.z, transformedVertex.z);
+
+		transformedParticleMaxBound.x = std::max(transformedParticleMaxBound.x, transformedVertex.x);
+		transformedParticleMaxBound.y = std::max(transformedParticleMaxBound.y, transformedVertex.y);
+		transformedParticleMaxBound.z = std::max(transformedParticleMaxBound.z, transformedVertex.z);
 	}
-	std::cout << glm::to_string(VertexToVec3(particleMinBound)) << " is the minimum bound of particle" << std::endl;
-	std::cout << glm::to_string(VertexToVec3(particleMaxBound)) << " is the maximum bound of particle" << std::endl;
+	std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
+	std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
 
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
+	glassPosition = glm::vec3(0, 0, 1);
+	glassModel = glm::translate(glassModel, glm::vec3(glassPosition));
 	glassScale = glm::vec3(0.01f, 0.01f, 0.001f);
 	glassModel = glm::scale(glassModel, glassScale);
-	//Move glass to the right so the particle does not spawn inside of 
-	glassPosition = glm::vec3(0, 0, 1000);
-	glassModel = glm::translate(glassModel, glm::vec3(glassPosition));
-	glassPosition = glassPosition - glassScale * 0.5;
 
 	Vertex glassMinBound = vertices2[0];
 	Vertex glassMaxBound = vertices2[0];
 
+	glm::vec4 transformedGlassMinBound = glassModel * glm::vec4(vertices2[0].x, vertices2[0].y, vertices2[0].z, 1.0f);
+	glm::vec4 transformedGlassMaxBound = glassModel * glm::vec4(vertices2[0].x, vertices2[0].y, vertices2[0].z, 1.0f);
+
 	for (int i = 0; i < vertices2.size(); i++)
 	{
-		if (glassMinBound.x > vertices2[i].x && glassMinBound.y > vertices2[i].y && glassMinBound.z > vertices2[i].z)
-		{
-			glassMinBound = vertices2[i];
-		}
-		if (glassMaxBound.x < vertices2[i].x && glassMaxBound.y < vertices2[i].y && glassMaxBound.z < vertices2[i].z)
-		{
-			glassMaxBound = vertices2[i];
-		}
+		glm::vec4 transformedVertex = glassModel * glm::vec4(vertices2[i].x, vertices2[i].y, vertices2[i].z, 1.0f);
+		transformedGlassMinBound.x = std::min(transformedGlassMinBound.x, transformedVertex.x);
+		transformedGlassMinBound.y = std::min(transformedGlassMinBound.y, transformedVertex.y);
+		transformedGlassMinBound.z = std::min(transformedGlassMinBound.z, transformedVertex.z);
+
+		transformedGlassMaxBound.x = std::max(transformedGlassMaxBound.x, transformedVertex.x);
+		transformedGlassMaxBound.y = std::max(transformedGlassMaxBound.y, transformedVertex.y);
+		transformedGlassMaxBound.z = std::max(transformedGlassMaxBound.z, transformedVertex.z);
 	}
-	std::cout << glm::to_string(VertexToVec3(glassMinBound) * glassScale + glassPosition) << " is the minimum bound of glass" << std::endl;
-	std::cout << glm::to_string(VertexToVec3(glassMaxBound) * glassScale + glassPosition) << " is the maximum bound of glass" << std::endl;
+	std::cout << glm::to_string(Vec4ToVec3(transformedGlassMinBound)) << " is the minimum bound of glass" << std::endl;
+	std::cout << glm::to_string(Vec4ToVec3(transformedGlassMaxBound)) << " is the maximum bound of glass" << std::endl;
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Glass plane model, view, projection matrix
@@ -534,6 +543,24 @@ int main(int argc, char ** argsv)
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
 
+		//Defining vertexes to be iterated through
+		glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
+		glm::vec4 transformedParticleMaxBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
+
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			glm::vec4 transformedVertex = particleModel * glm::vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0f);
+			transformedParticleMinBound.x = std::min(transformedParticleMinBound.x, transformedVertex.x);
+			transformedParticleMinBound.y = std::min(transformedParticleMinBound.y, transformedVertex.y);
+			transformedParticleMinBound.z = std::min(transformedParticleMinBound.z, transformedVertex.z);
+
+			transformedParticleMaxBound.x = std::max(transformedParticleMaxBound.x, transformedVertex.x);
+			transformedParticleMaxBound.y = std::max(transformedParticleMaxBound.y, transformedVertex.y);
+			transformedParticleMaxBound.z = std::max(transformedParticleMaxBound.z, transformedVertex.z);
+		}
+		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
+		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
+
 		/*glm::vec2 velocity = particlePosition - particlePreviousPosition;
 		particlePreviousPosition = particlePosition;
 		particlePosition += velocity + acceleration * (int)SDL_GetTicks;
@@ -558,7 +585,13 @@ int main(int argc, char ** argsv)
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 
-		
+		if (transformedParticleMaxBound.x >= transformedGlassMinBound.x && transformedParticleMinBound.x <= transformedGlassMaxBound.x &&
+			transformedParticleMaxBound.y >= transformedGlassMinBound.y && transformedParticleMinBound.y <= transformedGlassMaxBound.y &&
+			transformedParticleMaxBound.z >= transformedGlassMinBound.z && transformedParticleMinBound.z <= transformedGlassMaxBound.z)
+		{
+			std::cout << "Collision detected" << std::endl;
+		}
+
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
