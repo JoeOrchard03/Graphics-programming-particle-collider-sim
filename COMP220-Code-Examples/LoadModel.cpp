@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-ModelData LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
+bool LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, std::vector<unsigned>& ModelIndices, std::string& texturePath)
 {
 	//Calls the asset importer library
 	Assimp::Importer importer;
@@ -13,11 +13,7 @@ ModelData LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, st
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode || !scene->HasMeshes()) {
 		//If scene is messed up display an error and return false to quit out of the function
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Model import failed", importer.GetErrorString(), NULL);
-		ModelData value;
-		value.ModelIndices = ModelIndices;
-		value.ModelVertices = ModelVertices;
-		value.VerticesAndIndiciesPopulated = false;
-		return value;
+		return false;
 	}
 	//JUST A DEMO, assuming just one texture! You can use other textures, see documentation!
 	//http://assimp.sourceforge.net/lib_html/structai_material.html
@@ -37,14 +33,7 @@ ModelData LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, st
 
 	aiMesh* mesh = scene->mMeshes[0];
 	//Quits out function if no mesh is found
-	if (!mesh)
-	{
-		ModelData value;
-		value.ModelIndices = ModelIndices;
-		value.ModelVertices = ModelVertices;
-		value.VerticesAndIndiciesPopulated = false;
-		return value;
-	}
+	if (!mesh) return false;
 
 	ModelVertices.clear();
 	ModelIndices.clear();
@@ -100,9 +89,5 @@ ModelData LoadModel(const char* filePath, std::vector<Vertex>& ModelVertices, st
 	}
 
 	//Returns true if modelVertices and modelIndices were populated succesfully, otherwise returns false
-	ModelData value;
-	value.ModelIndices = ModelIndices;
-	value.ModelVertices = ModelVertices;
-	value.VerticesAndIndiciesPopulated = false;
-	return value;
+	return !(ModelVertices.empty() || ModelIndices.empty());
 }
