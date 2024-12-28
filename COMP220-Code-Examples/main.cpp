@@ -61,15 +61,9 @@ unsigned int numOfBoxes = 1;
 
 //Particle position variables
 glm::vec3 particlePosition;
-glm::vec3 topLeftParticlePos;
-glm::vec3 bottomRightParticlePos;
-glm::vec3 particlePreviousPosition;
-glm::vec3 acceleration;
 
 //Glass position variables
 glm::vec3 glassPosition;
-glm::vec3 topLeftGlassPos;
-glm::vec3 bottomRightGlassPos;
 glm::vec3 glassScale;
 
 SDL_Window* CreateWindow()
@@ -239,6 +233,11 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
+	for (int i = 0; i < numOfBoxes; i++)
+	{
+
+	}
+
 	//Texture binding for first model
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
@@ -326,7 +325,7 @@ int main(int argc, char ** argsv)
 
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
-	glassPosition = glm::vec3(0, 0, 1);
+	glassPosition = glm::vec3(0, 0, 0.5);
 	glassModel = glm::translate(glassModel, glm::vec3(glassPosition));
 	glassScale = glm::vec3(0.01f, 0.01f, 0.001f);
 	glassModel = glm::scale(glassModel, glassScale);
@@ -449,16 +448,16 @@ int main(int argc, char ** argsv)
 	//glm::mat4 boxModels[100000];
 
 	//for loop for randomly setting the x and ys of the boxes
-	//for (int i = 0; i < numOfBoxes; i++)
-	//{
-	//	boxPositions.push_back(glm::vec3(0,0,0));
-	//	//boxPositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
-	//	glm::mat4 newBoxModel = glm::mat4(1.0f);
-	//	newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
-	//	newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
-	//	boxModels[i] = newBoxModel;
-	//	std::cout << "Box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
-	//}
+	for (int i = 0; i < numOfBoxes; i++)
+	{
+		boxPositions.push_back(glm::vec3(0,0,0));
+		//boxpositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
+		glm::mat4 newBoxModel = glm::mat4(1.0f);
+		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
+		boxModels[i] = newBoxModel;
+		std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
+	}
 
 	//OID means object ID
 	GLuint screenQuadVBOID;
@@ -561,20 +560,15 @@ int main(int argc, char ** argsv)
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
 
-		/*glm::vec2 velocity = particlePosition - particlePreviousPosition;
-		particlePreviousPosition = particlePosition;
-		particlePosition += velocity + acceleration * (int)SDL_GetTicks;
-		acceleration = glm::vec2(0, 0);*/
-
-		////For each item in numOfBoxes
-		//for (int i = 0; i < numOfBoxes; i++)
-		//{
-		//	particleMVP = projection * view * boxModels[i];
-		//	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-		//	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
-		//	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		//	boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
-		//}
+		//For each item in numOfBoxes
+		for (int i = 0; i < numOfBoxes; i++)
+		{
+			particleMVP = projection * view * boxModels[i];
+			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
+			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
+		}
 
 		//Draw glass pane
 		glUseProgram(transparentShader);
@@ -584,7 +578,8 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
-
+		
+		//AABB test
 		if (transformedParticleMaxBound.x >= transformedGlassMinBound.x && transformedParticleMinBound.x <= transformedGlassMaxBound.x &&
 			transformedParticleMaxBound.y >= transformedGlassMinBound.y && transformedParticleMinBound.y <= transformedGlassMaxBound.y &&
 			transformedParticleMaxBound.z >= transformedGlassMinBound.z && transformedParticleMinBound.z <= transformedGlassMaxBound.z)
