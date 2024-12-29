@@ -452,8 +452,8 @@ int main(int argc, char ** argsv)
 		listOfIndices.push_back(tempIndices);
 
 		glm::mat4 newBoxModel = glm::mat4(1.0f);
-		//randomly places cube positions between -1 and 1 for the x and y values
-		boxPositions.push_back(glm::vec3(static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, 0.0f));
+		//randomly places cube positions between -1 and 1 for the x and y values and between -2 and 0 for the z values
+		boxPositions.push_back(glm::vec3(static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f));
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
 		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
 
@@ -602,6 +602,10 @@ int main(int argc, char ** argsv)
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
+			
+			//Reset maximum and minimum bounds before setting them to make sure that collisions do not continue after cubes have moved past
+			minimumBounds[i] = glm::vec3(listOfVertices[0][0].x, listOfVertices[0][0].y, listOfVertices[0][0].z);
+			maximumBounds[i] = glm::vec3(-listOfVertices[0][0].x, -listOfVertices[0][0].y, -listOfVertices[0][0].z);
 
 			for (int j = 0; j < listOfVertices[i].size(); j++)
 			{
@@ -636,6 +640,10 @@ int main(int argc, char ** argsv)
 				maximumBounds[i].z >= transformedGlassMinBound.z && minimumBounds[i].z <= transformedGlassMaxBound.z)
 			{
 				std::cout << "Collision detected with cube " << i + 1 << std::endl;
+			}
+			else
+			{
+				std::cout << "No collision detected" << std::endl;
 			}
 		}
 
