@@ -18,6 +18,8 @@
 #include "Shader.h"
 #include "Vertex.h"
 #include "LoadModel.h"
+#include <string>
+#include <map>
 #include "BufferObjectsLoad.h"
 #include <random>
 #include <vector>
@@ -183,7 +185,6 @@ int main(int argc, char ** argsv)
 
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	//Initalize Glew
 	IntializeGlew();
 
 	//LoadModel
@@ -192,23 +193,11 @@ int main(int argc, char ** argsv)
 	////LoadModel
 	LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
 
-	//LoadModel
-	//LoadModel("utah-teapot.fbx", vertices2, indices2, texturePath2);
-
 	//Check if model has texture
 	bool hasTexture = !texturePath.empty();
 
 	//hard coded texture path
 	SDL_Surface* image = IMG_Load("tex/crate_color.png");
-
-	//only load texture path if exists
-	//SDL_Surface* image2 = hasTexture ? IMG_Load(texturePath.c_str()) : nullptr;
-	//if (hasTexture && !image2) {
-	//	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG_Load failed", IMG_GetError(), NULL);
-	//	SDL_DestroyWindow(window);
-	//	SDL_Quit();
-	//	return 1;
-	//}
 
 	SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
 
@@ -232,11 +221,6 @@ int main(int argc, char ** argsv)
 	glGenBuffers(1, &EBO2);
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
-
-	for (int i = 0; i < numOfBoxes; i++)
-	{
-
-	}
 
 	//Texture binding for first model
 	if (image) {
@@ -347,8 +331,8 @@ int main(int argc, char ** argsv)
 		transformedGlassMaxBound.y = std::max(transformedGlassMaxBound.y, transformedVertex.y);
 		transformedGlassMaxBound.z = std::max(transformedGlassMaxBound.z, transformedVertex.z);
 	}
-	std::cout << glm::to_string(Vec4ToVec3(transformedGlassMinBound)) << " is the minimum bound of glass" << std::endl;
-	std::cout << glm::to_string(Vec4ToVec3(transformedGlassMaxBound)) << " is the maximum bound of glass" << std::endl;
+	//std::cout << glm::to_string(Vec4ToVec3(transformedGlassMinBound)) << " is the minimum bound of glass" << std::endl;
+	//std::cout << glm::to_string(Vec4ToVec3(transformedGlassMaxBound)) << " is the maximum bound of glass" << std::endl;
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Glass plane model, view, projection matrix
@@ -447,20 +431,67 @@ int main(int argc, char ** argsv)
 	//glm::mat4 boxModels[1000];
 	//glm::mat4 boxModels[100000];
 
+	//List of vertices and indices of each loaded model
+	std::vector<std::vector<Vertex>> listOfVertices;
+	std::vector<std::vector<unsigned int>> listOfIndices;
+	std::vector<glm::vec3> minimumBounds;
+	std::vector<glm::vec3> maximumBounds;
+
 	//Need to do this to make random actually random
 	srand(time(0));
 
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
-	{		
+	{	
+		//temp values to store indices and indices that load model will use
+		std::vector<Vertex> tempVertices;
+		std::vector<unsigned int> tempIndices;
+		LoadModel("Crate.fbx", tempVertices, tempIndices, texturePath);
+		//push back to the list after they have been populated
+		listOfVertices.push_back(tempVertices);
+		listOfIndices.push_back(tempIndices);
+
 		glm::mat4 newBoxModel = glm::mat4(1.0f);
 		//randomly places cube positions between -1 and 1 for the x and y values
 		boxPositions.push_back(glm::vec3(static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, 0.0f));
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
 		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+
+		Vertex tempParticleMinBound = vertices[0];
+		//Vertex tempParticleMaxBound = tempParticleMinBound;
+
+		glm::vec4 transformedTempParticleMinBound = newBoxModel * glm::vec4(tempVertices[0].x, tempVertices[0].y, tempVertices[0].z, 1.0f);
+		glm::vec4 transformedTempParticleMaxBound = newBoxModel * glm::vec4(tempVertices[0].x, tempVertices[0].y, tempVertices[0].z, 1.0f);
+
+		for (int j = 0; j < tempVertices.size(); j++)
+		{
+			glm::vec4 transformedVertex = particleModel * glm::vec4(tempVertices[j].x, tempVertices[j].y, tempVertices[j].z, 1.0f);
+			transformedTempParticleMinBound.x = std::min(transformedTempParticleMinBound.x, transformedVertex.x);
+			transformedTempParticleMinBound.y = std::min(transformedTempParticleMinBound.y, transformedVertex.y);
+			transformedTempParticleMinBound.z = std::min(transformedTempParticleMinBound.z, transformedVertex.z);
+
+			transformedTempParticleMaxBound.x = std::max(transformedTempParticleMaxBound.x, transformedVertex.x);
+			transformedTempParticleMaxBound.y = std::max(transformedTempParticleMaxBound.y, transformedVertex.y);
+			transformedTempParticleMaxBound.z = std::max(transformedTempParticleMaxBound.z, transformedVertex.z);
+		}
+
 		boxModels[i] = newBoxModel;
-		std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
+
+		maximumBounds.push_back(Vec4ToVec3(transformedTempParticleMaxBound));
+		minimumBounds.push_back(Vec4ToVec3(transformedTempParticleMinBound));
+
+		//std::cout << glm::to_string(Vec4ToVec3(transformedTempParticleMinBound)) << " is the minimum bound of particle " << i << std::endl;
+		//std::cout << glm::to_string(Vec4ToVec3(transformedTempParticleMaxBound)) << " is the maximum bound of particle " << i << std::endl;
+		//std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
 	}	
+
+	//for (int i = 0; i < listOfVertices.size(); i++)
+	//{
+	//	for (int j = 0; j < listOfVertices[i].size(); j++)
+	//	{
+	//		std::cout << "Cube " << i + 1 << " vertices are: " << glm::to_string(VertexToVec3(listOfVertices[i][j])) << std::endl;
+	//	}
+	//}
 
 	//OID means object ID
 	GLuint screenQuadVBOID;
@@ -546,7 +577,7 @@ int main(int argc, char ** argsv)
 		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
 
 		//Defining vertexes to be iterated through
-		glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
+		/*glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
 		glm::vec4 transformedParticleMaxBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
 
 		for (int i = 0; i < vertices.size(); i++)
@@ -559,10 +590,10 @@ int main(int argc, char ** argsv)
 			transformedParticleMaxBound.x = std::max(transformedParticleMaxBound.x, transformedVertex.x);
 			transformedParticleMaxBound.y = std::max(transformedParticleMaxBound.y, transformedVertex.y);
 			transformedParticleMaxBound.z = std::max(transformedParticleMaxBound.z, transformedVertex.z);
-		}
+		}*/
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
-
+		
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
@@ -571,6 +602,21 @@ int main(int argc, char ** argsv)
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
+
+			for (int j = 0; j < listOfVertices[i].size(); j++)
+			{
+				glm::vec4 transformedVertex = boxModels[i] * glm::vec4(listOfVertices[i][j].x, listOfVertices[i][j].y, listOfVertices[i][j].z, 1.0f);
+				minimumBounds[i].x = std::min(minimumBounds[i].x, transformedVertex.x);
+				minimumBounds[i].y = std::min(minimumBounds[i].y, transformedVertex.y);
+				minimumBounds[i].z = std::min(minimumBounds[i].z, transformedVertex.z);
+
+				maximumBounds[i].x = std::max(maximumBounds[i].x, transformedVertex.x);
+				maximumBounds[i].y = std::max(maximumBounds[i].y, transformedVertex.y);
+				maximumBounds[i].z = std::max(maximumBounds[i].z, transformedVertex.z);
+			}
+
+			//std::cout << glm::to_string(maximumBounds[i]) << " is the minimum bound of particle " << i + 1 << std::endl;
+			//std::cout << glm::to_string(maximumBounds[i]) << " is the maximum bound of particle " << i + 1 << std::endl;
 		}
 
 		//Draw glass pane
@@ -582,13 +628,24 @@ int main(int argc, char ** argsv)
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 		
-		//AABB test
-		if (transformedParticleMaxBound.x >= transformedGlassMinBound.x && transformedParticleMinBound.x <= transformedGlassMaxBound.x &&
-			transformedParticleMaxBound.y >= transformedGlassMinBound.y && transformedParticleMinBound.y <= transformedGlassMaxBound.y &&
-			transformedParticleMaxBound.z >= transformedGlassMinBound.z && transformedParticleMinBound.z <= transformedGlassMaxBound.z)
+		for (int i = 0; i < numOfBoxes; i++)
 		{
-			std::cout << "Collision detected" << std::endl;
+			if (
+				maximumBounds[i].x >= transformedGlassMinBound.x && minimumBounds[i].x <= transformedGlassMaxBound.x &&
+				maximumBounds[i].y >= transformedGlassMinBound.y && minimumBounds[i].y <= transformedGlassMaxBound.y &&
+				maximumBounds[i].z >= transformedGlassMinBound.z && minimumBounds[i].z <= transformedGlassMaxBound.z)
+			{
+				std::cout << "Collision detected with cube " << i + 1 << std::endl;
+			}
 		}
+
+		////AABB test
+		//if (transformedParticleMaxBound.x >= transformedGlassMinBound.x && transformedParticleMinBound.x <= transformedGlassMaxBound.x &&
+		//	transformedParticleMaxBound.y >= transformedGlassMinBound.y && transformedParticleMinBound.y <= transformedGlassMaxBound.y &&
+		//	transformedParticleMaxBound.z >= transformedGlassMinBound.z && transformedParticleMinBound.z <= transformedGlassMaxBound.z)
+		//{
+		//	std::cout << "Collision detected" << std::endl;
+		//}
 
 
 		//render texture on quad
