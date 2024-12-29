@@ -53,8 +53,8 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-unsigned int numOfBoxes = 1;
-//unsigned int numOfBoxes = 10;
+//unsigned int numOfBoxes = 1;
+unsigned int numOfBoxes = 10;
 //unsigned int numOfBoxes = 100;
 //unsigned int numOfBoxes = 1000;
 //unsigned int numOfBoxes = 100000;
@@ -441,23 +441,26 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	glm::mat4 boxModels[1];
-	//glm::mat4 boxModels[10];
+	//glm::mat4 boxModels[1];
+	glm::mat4 boxModels[10];
 	//glm::mat4 boxModels[100];
 	//glm::mat4 boxModels[1000];
 	//glm::mat4 boxModels[100000];
 
+	//Need to do this to make random actually random
+	srand(time(0));
+
 	//for loop for randomly setting the x and ys of the boxes
 	for (int i = 0; i < numOfBoxes; i++)
-	{
-		boxPositions.push_back(glm::vec3(0,0,0));
-		//boxpositions.push_back(glm::vec3(rand() % 1000 + 1, rand() % 1000 + 1, 200.0f));
+	{		
 		glm::mat4 newBoxModel = glm::mat4(1.0f);
-		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+		//randomly places cube positions between -1 and 1 for the x and y values
+		boxPositions.push_back(glm::vec3(static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, 0.0f));
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
+		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
 		boxModels[i] = newBoxModel;
 		std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
-	}
+	}	
 
 	//OID means object ID
 	GLuint screenQuadVBOID;
@@ -536,11 +539,11 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO);
 		glUseProgram(shaderProgram);
 		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
-		particleMVP = projection * view * particleModel;
+		/*particleMVP = projection * view * particleModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));
+		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
 
 		//Defining vertexes to be iterated through
 		glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
@@ -567,7 +570,7 @@ int main(int argc, char ** argsv)
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, rand() % 1 + 1));
+			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
 		}
 
 		//Draw glass pane
