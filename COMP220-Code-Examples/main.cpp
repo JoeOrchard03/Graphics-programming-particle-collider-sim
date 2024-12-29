@@ -68,6 +68,8 @@ glm::vec3 particlePosition;
 glm::vec3 glassPosition;
 glm::vec3 glassScale;
 
+std::vector<bool> collidedChecker(numOfBoxes, false);
+
 SDL_Window* CreateWindow()
 {
 	//Initialises the SDL Library, passing in SDL_INIT_VIDEO to only initialise the video subsystems
@@ -221,6 +223,7 @@ int main(int argc, char ** argsv)
 	glGenBuffers(1, &EBO2);
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
+
 
 	//Texture binding for first model
 	if (image) {
@@ -593,7 +596,7 @@ int main(int argc, char ** argsv)
 		}*/
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
 		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
-		
+
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
@@ -601,8 +604,11 @@ int main(int argc, char ** argsv)
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-			boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
-			
+			if (collidedChecker[i] == false)
+			{
+				boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
+			}
+				
 			//Reset maximum and minimum bounds before setting them to make sure that collisions do not continue after cubes have moved past
 			minimumBounds[i] = glm::vec3(listOfVertices[0][0].x, listOfVertices[0][0].y, listOfVertices[0][0].z);
 			maximumBounds[i] = glm::vec3(-listOfVertices[0][0].x, -listOfVertices[0][0].y, -listOfVertices[0][0].z);
@@ -619,8 +625,21 @@ int main(int argc, char ** argsv)
 				maximumBounds[i].z = std::max(maximumBounds[i].z, transformedVertex.z);
 			}
 
-			//std::cout << glm::to_string(maximumBounds[i]) << " is the minimum bound of particle " << i + 1 << std::endl;
+			//std::cout << glm::to_string(minimumBounds[i]) << " is the minimum bound of particle " << i + 1 << std::endl;
 			//std::cout << glm::to_string(maximumBounds[i]) << " is the maximum bound of particle " << i + 1 << std::endl;
+
+			if (
+				maximumBounds[i].x >= transformedGlassMinBound.x && minimumBounds[i].x <= transformedGlassMaxBound.x &&
+				maximumBounds[i].y >= transformedGlassMinBound.y && minimumBounds[i].y <= transformedGlassMaxBound.y &&
+				maximumBounds[i].z >= transformedGlassMinBound.z && minimumBounds[i].z <= transformedGlassMaxBound.z)
+			{
+				if (collidedChecker[i] == false)
+				{
+					std::cout << "Collision detected with cube " << i + 1 << std::endl;
+					collidedChecker[i] = true;
+				}
+				//std::cout << "collided checker " << i << " is: [" << collidedChecker[i] << "] " << std::endl;
+			}
 		}
 
 		//Draw glass pane
@@ -631,30 +650,6 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO2);
 		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
-		
-		for (int i = 0; i < numOfBoxes; i++)
-		{
-			if (
-				maximumBounds[i].x >= transformedGlassMinBound.x && minimumBounds[i].x <= transformedGlassMaxBound.x &&
-				maximumBounds[i].y >= transformedGlassMinBound.y && minimumBounds[i].y <= transformedGlassMaxBound.y &&
-				maximumBounds[i].z >= transformedGlassMinBound.z && minimumBounds[i].z <= transformedGlassMaxBound.z)
-			{
-				std::cout << "Collision detected with cube " << i + 1 << std::endl;
-			}
-			else
-			{
-				std::cout << "No collision detected" << std::endl;
-			}
-		}
-
-		////AABB test
-		//if (transformedParticleMaxBound.x >= transformedGlassMinBound.x && transformedParticleMinBound.x <= transformedGlassMaxBound.x &&
-		//	transformedParticleMaxBound.y >= transformedGlassMinBound.y && transformedParticleMinBound.y <= transformedGlassMaxBound.y &&
-		//	transformedParticleMaxBound.z >= transformedGlassMinBound.z && transformedParticleMinBound.z <= transformedGlassMaxBound.z)
-		//{
-		//	std::cout << "Collision detected" << std::endl;
-		//}
-
 
 		//render texture on quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
