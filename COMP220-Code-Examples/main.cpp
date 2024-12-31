@@ -56,8 +56,8 @@ const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
 //unsigned int numOfBoxes = 1;
-unsigned int numOfBoxes = 10;
-//unsigned int numOfBoxes = 100;
+//unsigned int numOfBoxes = 10;
+unsigned int numOfBoxes = 100;
 //unsigned int numOfBoxes = 1000;
 //unsigned int numOfBoxes = 100000;
 
@@ -429,8 +429,8 @@ int main(int argc, char ** argsv)
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
 	//glm::mat4 boxModels[1];
-	glm::mat4 boxModels[10];
-	//glm::mat4 boxModels[100];
+	//glm::mat4 boxModels[10];
+	glm::mat4 boxModels[100];
 	//glm::mat4 boxModels[1000];
 	//glm::mat4 boxModels[100000];
 
@@ -458,7 +458,7 @@ int main(int argc, char ** argsv)
 		//randomly places cube positions between -1 and 1 for the x and y values and between -2 and 0 for the z values
 		boxPositions.push_back(glm::vec3(static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f));
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
-		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.001f, 0.001f, 0.001f));
+		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.0001f, 0.0001f, 0.0001f));
 
 		Vertex tempParticleMinBound = vertices[0];
 		//Vertex tempParticleMaxBound = tempParticleMinBound;
@@ -487,14 +487,6 @@ int main(int argc, char ** argsv)
 		//std::cout << glm::to_string(Vec4ToVec3(transformedTempParticleMaxBound)) << " is the maximum bound of particle " << i << std::endl;
 		//std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
 	}	
-
-	//for (int i = 0; i < listOfVertices.size(); i++)
-	//{
-	//	for (int j = 0; j < listOfVertices[i].size(); j++)
-	//	{
-	//		std::cout << "Cube " << i + 1 << " vertices are: " << glm::to_string(VertexToVec3(listOfVertices[i][j])) << std::endl;
-	//	}
-	//}
 
 	//OID means object ID
 	GLuint screenQuadVBOID;
@@ -579,24 +571,6 @@ int main(int argc, char ** argsv)
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
 
-		//Defining vertexes to be iterated through
-		/*glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
-		glm::vec4 transformedParticleMaxBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
-
-		for (int i = 0; i < vertices.size(); i++)
-		{
-			glm::vec4 transformedVertex = particleModel * glm::vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0f);
-			transformedParticleMinBound.x = std::min(transformedParticleMinBound.x, transformedVertex.x);
-			transformedParticleMinBound.y = std::min(transformedParticleMinBound.y, transformedVertex.y);
-			transformedParticleMinBound.z = std::min(transformedParticleMinBound.z, transformedVertex.z);
-
-			transformedParticleMaxBound.x = std::max(transformedParticleMaxBound.x, transformedVertex.x);
-			transformedParticleMaxBound.y = std::max(transformedParticleMaxBound.y, transformedVertex.y);
-			transformedParticleMaxBound.z = std::max(transformedParticleMaxBound.z, transformedVertex.z);
-		}*/
-		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
-		//std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
-
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
@@ -606,7 +580,7 @@ int main(int argc, char ** argsv)
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 			if (collidedChecker[i] == false)
 			{
-				boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 1.0f));
+				boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 20.0f));
 			}
 				
 			//Reset maximum and minimum bounds before setting them to make sure that collisions do not continue after cubes have moved past
@@ -638,7 +612,6 @@ int main(int argc, char ** argsv)
 					std::cout << "Collision detected with cube " << i + 1 << std::endl;
 					collidedChecker[i] = true;
 				}
-				//std::cout << "collided checker " << i << " is: [" << collidedChecker[i] << "] " << std::endl;
 			}
 		}
 
