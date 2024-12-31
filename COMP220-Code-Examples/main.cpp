@@ -68,6 +68,8 @@ glm::vec3 particlePosition;
 glm::vec3 glassPosition;
 glm::vec3 glassScale;
 
+GLuint textureID;
+
 std::vector<bool> collidedChecker(numOfBoxes, false);
 
 SDL_Window* CreateWindow()
@@ -201,8 +203,6 @@ int main(int argc, char ** argsv)
 	//hard coded texture path
 	SDL_Surface* image = IMG_Load("tex/crate_color.png");
 
-	SDL_Surface* image2 = IMG_Load("tex/crate_color.png");
-
 	// Create one OpenGL texture
 	GLuint textureID;
 	//Create buffer objects
@@ -213,16 +213,6 @@ int main(int argc, char ** argsv)
 	glGenBuffers(1, &EBO);
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
-
-	//Create texture and buffer objects for other model
-	GLuint textureID2;
-	unsigned int VBO2, VAO2, EBO2;
-	//Initalise them
-	glGenVertexArrays(1, &VAO2);
-	glGenBuffers(1, &VBO2);
-	glGenBuffers(1, &EBO2);
-	//Load all their attributes and stuff in this function
-	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
 	//Texture binding for first model
 	if (image) {
@@ -249,30 +239,6 @@ int main(int argc, char ** argsv)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
-	//Texture binding for second model
-	if (image2) {
-		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
-
-		//IF IMAGE BREAKING CHECK THIS
-		glGenTextures(1, &textureID2);
-
-		// "Bind" the newly created texture : all future texture functions will modify this texture
-		glBindTexture(GL_TEXTURE_2D, textureID2);
-
-		int Mode = GL_RGB;
-
-		if (image2->format->BytesPerPixel == 4) {
-			Mode = GL_RGBA;
-		}
-		glTexImage2D(GL_TEXTURE_2D, 0, Mode, image2->w, image2->h, 0, Mode, GL_UNSIGNED_BYTE, image2->pixels);
-
-		// Nice trilinear filtering.
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //repeats if we go beyond TEXTURE UV maxima
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
 
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
@@ -537,11 +503,6 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(VAO);
 		glUseProgram(shaderProgram);
 		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
-		/*particleMVP = projection * view * particleModel;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(particleModel));
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 1.0f));*/
 
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
@@ -592,8 +553,8 @@ int main(int argc, char ** argsv)
 		glassPlaneMVP = projection * view * glassModel;
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(glassPlaneMVP));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glassModel));
-		glBindVertexArray(VAO2);
-		if (image2) glBindTexture(GL_TEXTURE_2D, textureID2);
+		glBindVertexArray(VAO);
+		if (image) glBindTexture(GL_TEXTURE_2D, textureID);
 		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, (void*)0);
 
 		//render texture on quad
