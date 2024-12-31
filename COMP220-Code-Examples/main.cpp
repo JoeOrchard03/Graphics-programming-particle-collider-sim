@@ -224,7 +224,6 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices2, indices2, VBO2, VAO2, EBO2);
 
-
 	//Texture binding for first model
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
@@ -282,33 +281,6 @@ int main(int argc, char ** argsv)
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
 		"fragShader_post.glsl");
 	GLuint transparentShader = LoadShaders("BasicVert.glsl", "TransparentFrag.glsl");
-
-	//Particle identity matrix
-	glm::mat4 particleModel = glm::mat4(1.0f);
-	particleModel = glm::translate(particleModel, glm::vec3(0.0f, 0.0f, 0.0f));
-	glm::vec3 particleModelScale = glm::vec3(0.001f, 0.001f, 0.001f);
-	particleModel = glm::scale(particleModel, particleModelScale);
-
-	//Defining vertexes to be iterated through
-	Vertex particleMinBound = vertices[0];
-	Vertex particleMaxBound = vertices[0];
-
-	glm::vec4 transformedParticleMinBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
-	glm::vec4 transformedParticleMaxBound = particleModel * glm::vec4(vertices[0].x, vertices[0].y, vertices[0].z, 1.0f);
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		glm::vec4 transformedVertex = particleModel * glm::vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0f);
-		transformedParticleMinBound.x = std::min(transformedParticleMinBound.x, transformedVertex.x);
-		transformedParticleMinBound.y = std::min(transformedParticleMinBound.y, transformedVertex.y);
-		transformedParticleMinBound.z = std::min(transformedParticleMinBound.z, transformedVertex.z);
-
-		transformedParticleMaxBound.x = std::max(transformedParticleMaxBound.x, transformedVertex.x);
-		transformedParticleMaxBound.y = std::max(transformedParticleMaxBound.y, transformedVertex.y);
-		transformedParticleMaxBound.z = std::max(transformedParticleMaxBound.z, transformedVertex.z);
-	}
-	std::cout << glm::to_string(Vec4ToVec3(transformedParticleMinBound)) << " is the minimum bound of particle" << std::endl;
-	std::cout << glm::to_string(Vec4ToVec3(transformedParticleMaxBound)) << " is the maximum bound of particle" << std::endl;
 
 	//Glass identiy matrix
 	glm::mat4 glassModel = glm::mat4(1.0f);
@@ -468,7 +440,7 @@ int main(int argc, char ** argsv)
 
 		for (int j = 0; j < tempVertices.size(); j++)
 		{
-			glm::vec4 transformedVertex = particleModel * glm::vec4(tempVertices[j].x, tempVertices[j].y, tempVertices[j].z, 1.0f);
+			glm::vec4 transformedVertex = newBoxModel * glm::vec4(tempVertices[j].x, tempVertices[j].y, tempVertices[j].z, 1.0f);
 			transformedTempParticleMinBound.x = std::min(transformedTempParticleMinBound.x, transformedVertex.x);
 			transformedTempParticleMinBound.y = std::min(transformedTempParticleMinBound.y, transformedVertex.y);
 			transformedTempParticleMinBound.z = std::min(transformedTempParticleMinBound.z, transformedVertex.z);
