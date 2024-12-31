@@ -23,6 +23,9 @@
 #include "BufferObjectsLoad.h"
 #include <random>
 #include <vector>
+#include <thread>
+#include <chrono>
+
 
 //Window
 SDL_Window* window;
@@ -71,6 +74,8 @@ glm::vec3 glassScale;
 GLuint textureID;
 
 std::vector<bool> collidedChecker(numOfBoxes, false);
+std::vector<bool> deleteChecker(numOfBoxes, false);
+int deletionDelay = 2;
 
 SDL_Window* CreateWindow()
 {
@@ -177,6 +182,16 @@ glm::vec3 Vec4ToVec3(glm::vec4 vec4ToConvert)
 	return vec3ToReturn;
 }
 
+void Delay(int iterator)
+{
+	std::thread([iterator]()
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(deletionDelay));
+			std::cout << "Deletion delay elapsed for cube " << iterator + 1 << std::endl;
+			deleteChecker[iterator] = true;
+		}).detach();
+}
+
 int main(int argc, char ** argsv)
 {
 	//Initalize SDL version
@@ -238,7 +253,6 @@ int main(int argc, char ** argsv)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
-
 
 	// Create and compile our GLSL program from the shaders
 	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
@@ -507,10 +521,13 @@ int main(int argc, char ** argsv)
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
-			particleMVP = projection * view * boxModels[i];
-			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+			if (deleteChecker[i] == false)
+			{
+				particleMVP = projection * view * boxModels[i];
+				glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(particleMVP));
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
+				glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+			}
 			if (collidedChecker[i] == false)
 			{
 				boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 20.0f));
@@ -544,6 +561,8 @@ int main(int argc, char ** argsv)
 				{
 					std::cout << "Collision detected with cube " << i + 1 << std::endl;
 					collidedChecker[i] = true;
+
+					Delay(i);
 				}
 			}
 		}
