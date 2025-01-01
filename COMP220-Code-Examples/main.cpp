@@ -184,20 +184,22 @@ glm::vec3 Vec4ToVec3(glm::vec4 vec4ToConvert)
 
 void Delay(int iterator)
 {
+	//Create a new thread which lets multiple functions run at the same time
 	std::thread([iterator]()
 		{
+			//sleeps for a duration, because it is in a thread will not delay the rest of the program
 			std::this_thread::sleep_for(std::chrono::seconds(deletionDelay));
 			std::cout << "Deletion delay elapsed for cube " << iterator + 1 << std::endl;
+			//This is checked when rendering the cubes, if set to true that cube will stop rendering
 			deleteChecker[iterator] = true;
+		//Detatch the thread once it is no longer needed
 		}).detach();
 }
 
 int main(int argc, char ** argsv)
 {
-	//Initalize SDL version
 	IntializeSDLVersion();
 
-	//Create window
 	window = CreateWindow();
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -206,10 +208,8 @@ int main(int argc, char ** argsv)
 
 	IntializeGlew();
 
-	//LoadModel
 	LoadModel("Crate.fbx", vertices, indices, texturePath);
 	
-	////LoadModel
 	LoadModel("Crate.fbx", vertices2, indices2, texturePath2);
 
 	//Check if model has texture
@@ -229,7 +229,7 @@ int main(int argc, char ** argsv)
 	//Load all their attributes and stuff in this function
 	LoadBufferObjects(vertices, indices, VBO, VAO, EBO);
 
-	//Texture binding for first model
+	//Texture binding for cubes
 	if (image) {
 		//NOTE: FOLLOWING CODE BLOCK DERIVED FROM: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/#using-the-texture-in-opengl
 
@@ -254,8 +254,7 @@ int main(int argc, char ** argsv)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
-	// Create and compile our GLSL program from the shaders
-	// call the shader glsl files by name must be inside the same root folder like this example program otherwise it will not work.
+	// Create and compile our GLSL programs from the shaders
 	GLuint shaderProgram = LoadShaders("BasicVert.glsl",
 		"BasicFrag.glsl");
 	GLuint postShaderID = LoadShaders("vertShader_post.glsl",
@@ -269,15 +268,16 @@ int main(int argc, char ** argsv)
 	glassScale = glm::vec3(0.01f, 0.01f, 0.001f);
 	glassModel = glm::scale(glassModel, glassScale);
 
-	Vertex glassMinBound = vertices2[0];
-	Vertex glassMaxBound = vertices2[0];
-
+	//Min and max bounds of the glass declaration
 	glm::vec4 transformedGlassMinBound = glassModel * glm::vec4(vertices2[0].x, vertices2[0].y, vertices2[0].z, 1.0f);
 	glm::vec4 transformedGlassMaxBound = glassModel * glm::vec4(vertices2[0].x, vertices2[0].y, vertices2[0].z, 1.0f);
 
+	//iterates through every vertex in the glass
 	for (int i = 0; i < vertices2.size(); i++)
 	{
+		//Multiplies each vertex by the glassModel matrix to account for scaling and positioning in world space
 		glm::vec4 transformedVertex = glassModel * glm::vec4(vertices2[i].x, vertices2[i].y, vertices2[i].z, 1.0f);
+		//Gets the smallest value between the glass bound and the vertex bound and sets that to be the new min bound, ensuring the smallest one is found
 		transformedGlassMinBound.x = std::min(transformedGlassMinBound.x, transformedVertex.x);
 		transformedGlassMinBound.y = std::min(transformedGlassMinBound.y, transformedVertex.y);
 		transformedGlassMinBound.z = std::min(transformedGlassMinBound.z, transformedVertex.z);
@@ -286,8 +286,6 @@ int main(int argc, char ** argsv)
 		transformedGlassMaxBound.y = std::max(transformedGlassMaxBound.y, transformedVertex.y);
 		transformedGlassMaxBound.z = std::max(transformedGlassMaxBound.z, transformedVertex.z);
 	}
-	//std::cout << glm::to_string(Vec4ToVec3(transformedGlassMinBound)) << " is the minimum bound of glass" << std::endl;
-	//std::cout << glm::to_string(Vec4ToVec3(transformedGlassMaxBound)) << " is the maximum bound of glass" << std::endl;
 
 	//Setup matricies
 	glm::mat4 glassPlaneMVP, //Glass plane model, view, projection matrix
@@ -301,9 +299,7 @@ int main(int argc, char ** argsv)
 		objColourLoc = glGetUniformLocation(shaderProgram, "objColour"), //Color of the object, overwritten by texture
 		modelLoc = glGetUniformLocation(shaderProgram, "model"); //Model identity matrix
 
-	//Lighting
-	//COPY THIS BLOCK FROM LECTURE SLIDES!!!
-	//note: lightcolour is changed!
+	//LIGHT VALUES
 	float lightValues[] = {
 		-1.0f, 1.f, 0.4f, // lightDir - rotation the light is coming from
 		0.0f, // padding for alignment - do you want to offset the light
@@ -380,15 +376,13 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	//glm::mat4 boxModels[1];
-	//glm::mat4 boxModels[10];
 	glm::mat4 boxModels[100];
-	//glm::mat4 boxModels[1000];
-	//glm::mat4 boxModels[100000];
 
 	//List of vertices and indices of each loaded model
 	std::vector<std::vector<Vertex>> listOfVertices;
 	std::vector<std::vector<unsigned int>> listOfIndices;
+
+	//Declare list of vec3's to store the minimum and maximum bounds of the cubes
 	std::vector<glm::vec3> minimumBounds;
 	std::vector<glm::vec3> maximumBounds;
 
@@ -412,11 +406,8 @@ int main(int argc, char ** argsv)
 		newBoxModel = glm::translate(newBoxModel, boxPositions[i]);
 		newBoxModel = glm::scale(newBoxModel, glm::vec3(0.0001f, 0.0001f, 0.0001f));
 
-		Vertex tempParticleMinBound = vertices[0];
-		//Vertex tempParticleMaxBound = tempParticleMinBound;
-
 		glm::vec4 transformedTempParticleMinBound = newBoxModel * glm::vec4(tempVertices[0].x, tempVertices[0].y, tempVertices[0].z, 1.0f);
-		glm::vec4 transformedTempParticleMaxBound = newBoxModel * glm::vec4(tempVertices[0].x, tempVertices[0].y, tempVertices[0].z, 1.0f);
+		glm::vec4 transformedTempParticleMaxBound = transformedTempParticleMinBound;
 
 		for (int j = 0; j < tempVertices.size(); j++)
 		{
@@ -465,8 +456,6 @@ int main(int argc, char ** argsv)
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//DEPTH TEST MOVED!!
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	running = true;
@@ -548,9 +537,6 @@ int main(int argc, char ** argsv)
 				maximumBounds[i].y = std::max(maximumBounds[i].y, transformedVertex.y);
 				maximumBounds[i].z = std::max(maximumBounds[i].z, transformedVertex.z);
 			}
-
-			//std::cout << glm::to_string(minimumBounds[i]) << " is the minimum bound of particle " << i + 1 << std::endl;
-			//std::cout << glm::to_string(maximumBounds[i]) << " is the maximum bound of particle " << i + 1 << std::endl;
 
 			if (
 				maximumBounds[i].x >= transformedGlassMinBound.x && minimumBounds[i].x <= transformedGlassMaxBound.x &&
