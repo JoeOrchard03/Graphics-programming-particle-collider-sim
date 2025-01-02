@@ -10,7 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/ext.hpp"
-
 #include <assimp/Importer.hpp>	
 #include <assimp/scene.h>	
 #include <assimp/postprocess.h>	
@@ -18,34 +17,27 @@
 #include "Shader.h"
 #include "Vertex.h"
 #include "LoadModel.h"
+#include "BufferObjectsLoad.h"
+
 #include <string>
 #include <map>
-#include "BufferObjectsLoad.h"
 #include <random>
 #include <vector>
 #include <thread>
 #include <chrono>
 
-
-//Window
 SDL_Window* window;
 
 bool running = true;
 
-//Global variables for loading models
-//Vertices are the points that make up the shape
+//Global variables for loading cubes
 std::vector<Vertex> vertices;
-//Indices control which vertices link to form a shape
 std::vector<unsigned> indices;
-//Texture
 std::string texturePath;
 
-//Global variables for loading models
-//Vertices are the points that make up the shape
+//Global variables for loading glass
 std::vector<Vertex> vertices2;
-//Indices control which vertices link to form a shape
 std::vector<unsigned> indices2;
-//Texture
 std::string texturePath2;
 
 //Camera variables
@@ -58,11 +50,7 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-//unsigned int numOfBoxes = 1;
-//unsigned int numOfBoxes = 10;
 unsigned int numOfBoxes = 100;
-//unsigned int numOfBoxes = 1000;
-//unsigned int numOfBoxes = 100000;
 
 //Particle position variables
 glm::vec3 particlePosition;
@@ -147,7 +135,7 @@ void HandleInput(SDL_Event ev)
 		break;
 	}
 	case SDL_KEYDOWN:
-		//Check the actual key code of the key that has been pressed
+		//Check the key code of the key that has been pressed
 		switch (ev.key.keysym.sym)
 		{
 		case SDLK_ESCAPE: // SDLK_(keybind) is how you do keybinds
@@ -425,10 +413,6 @@ int main(int argc, char ** argsv)
 
 		maximumBounds.push_back(Vec4ToVec3(transformedTempParticleMaxBound));
 		minimumBounds.push_back(Vec4ToVec3(transformedTempParticleMinBound));
-
-		//std::cout << glm::to_string(Vec4ToVec3(transformedTempParticleMinBound)) << " is the minimum bound of particle " << i << std::endl;
-		//std::cout << glm::to_string(Vec4ToVec3(transformedTempParticleMaxBound)) << " is the maximum bound of particle " << i << std::endl;
-		//std::cout << "box " << i << " position is: " << glm::to_string(boxPositions[i]) << std::endl;
 	}	
 
 	//OID means object ID
@@ -510,6 +494,7 @@ int main(int argc, char ** argsv)
 		//For each item in numOfBoxes
 		for (int i = 0; i < numOfBoxes; i++)
 		{
+			//Checks if the cube has been marked to be deleted before rendering
 			if (deleteChecker[i] == false)
 			{
 				particleMVP = projection * view * boxModels[i];
@@ -517,6 +502,7 @@ int main(int argc, char ** argsv)
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(boxModels[i]));
 				glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 			}
+			//Checks if the box has hit the glass, if it has it will not move it
 			if (collidedChecker[i] == false)
 			{
 				boxModels[i] = glm::translate(boxModels[i], glm::vec3(0.0f, 0.0f, 20.0f));
@@ -526,8 +512,10 @@ int main(int argc, char ** argsv)
 			minimumBounds[i] = glm::vec3(listOfVertices[0][0].x, listOfVertices[0][0].y, listOfVertices[0][0].z);
 			maximumBounds[i] = glm::vec3(-listOfVertices[0][0].x, -listOfVertices[0][0].y, -listOfVertices[0][0].z);
 
+			//Iterates through each cubes vertices
 			for (int j = 0; j < listOfVertices[i].size(); j++)
 			{
+				//Calculates the bounds of each cube multiplied by its model matrix to account for scale, position and continuous movement
 				glm::vec4 transformedVertex = boxModels[i] * glm::vec4(listOfVertices[i][j].x, listOfVertices[i][j].y, listOfVertices[i][j].z, 1.0f);
 				minimumBounds[i].x = std::min(minimumBounds[i].x, transformedVertex.x);
 				minimumBounds[i].y = std::min(minimumBounds[i].y, transformedVertex.y);
@@ -538,16 +526,19 @@ int main(int argc, char ** argsv)
 				maximumBounds[i].z = std::max(maximumBounds[i].z, transformedVertex.z);
 			}
 
+			//AABB collision check for each cube compared to the glass
 			if (
 				maximumBounds[i].x >= transformedGlassMinBound.x && minimumBounds[i].x <= transformedGlassMaxBound.x &&
 				maximumBounds[i].y >= transformedGlassMinBound.y && minimumBounds[i].y <= transformedGlassMaxBound.y &&
 				maximumBounds[i].z >= transformedGlassMinBound.z && minimumBounds[i].z <= transformedGlassMaxBound.z)
 			{
+				//Marks the first collision, prints debug message as well as stopping movement
 				if (collidedChecker[i] == false)
 				{
 					std::cout << "Collision detected with cube " << i + 1 << std::endl;
 					collidedChecker[i] = true;
 
+					//Stops rendering the cube a set time after it hits the glass
 					Delay(i);
 				}
 			}
