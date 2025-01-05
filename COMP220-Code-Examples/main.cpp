@@ -575,7 +575,6 @@ int main(int argc, char ** argsv)
 
 	SDL_FreeSurface(image);
 	SDL_GL_DeleteContext(glContext);
-
 	glDeleteProgram(shaderProgram);
 	SDL_GL_DeleteContext(glContext);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
