@@ -44,3 +44,14 @@ Because of the lower frame rate during this run, the test took almost 3 minutes 
 
 While "glm::operator*<float,0>" is still the highest usage as expected, LoadModel is using considerably more usage then it was at 1000 models in worksheet 3.
 
+### 10,000 Models loaded:
+
+The fps at 10,000 models dropped considerably.
+
+![alt text](image-28.png)
+
+The average use is still 13 percent but the peak has decreased to 14 percent.
+
+![alt text](image-29.png)
+
+At 10k models, Load Model takes over "glm::operator*<float,0>" as the highest use item in the hot path.
