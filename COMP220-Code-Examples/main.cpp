@@ -50,7 +50,7 @@ glm::vec3 rotation = glm::vec3(0);
 const float walkspeed = 0.2f, rotSpeed = 0.1f;
 
 //Number of boxes to spawn to represent particles
-unsigned int numOfBoxes = 100;
+unsigned int numOfBoxes = 1000;
 
 //Particle position variables
 glm::vec3 particlePosition;
@@ -364,7 +364,7 @@ int main(int argc, char ** argsv)
 
 	//Array to store their positions
 	std::vector <glm::vec3> boxPositions;
-	glm::mat4 boxModels[100];
+	glm::mat4 boxModels[1000];
 
 	//List of vertices and indices of each loaded model
 	std::vector<std::vector<Vertex>> listOfVertices;
