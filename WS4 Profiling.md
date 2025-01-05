@@ -54,4 +54,4 @@ The average use is still 13 percent but the peak has decreased to 14 percent.
 
 ![alt text](image-29.png)
 
-At 10k models, Load Model takes over "glm::operator*<float,0>" as the highest use item in the hot path.
+At 10k models, Load Model takes over "glm::operator*<float,0>" as the highest use item in the hot path. I believe this is because in worksheet 3 I only used 2 calls of load model even when creating more cubes, I had to use LoadModel for each cube this time because I needed to keep track of the vertices to use to find the bounds in order to use for AABB collision checks. This is likely the reason for the massive difference in performance between worksheet 3 and 4.
