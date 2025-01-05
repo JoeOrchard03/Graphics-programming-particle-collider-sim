@@ -564,7 +564,6 @@ int main(int argc, char ** argsv)
 		glBindVertexArray(screenVAOID);
 		glBindTexture(GL_TEXTURE_2D, renderTextureID);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
-		
 		SDL_GL_SwapWindow(window);
 	}
 
