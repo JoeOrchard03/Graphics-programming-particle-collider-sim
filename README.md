@@ -1,5 +1,3 @@
-# COMMON ISSUE:
-if many error appear on start up, check:
-	property pages - configuration proprties - General - General properties - Platform Toolset
-	make sure a version is set.
-	If no version installed, you will need to install one, close visual studio first.
+Please see Comp 305 poster.pdf to view the academic poster I made for this project which explains it in more detail.
+
+This project utilizes openGL and C++, it was made to simulate particles of dust or sand hitting glass and then fading away. To do this I loaded various amounts of small boxes to represent the particles and had them move towards the bigger box which I made transparent to resemble a glass pane, for each box I performed an AABB collision test to detect when they hit the glass. I then stopped them moving to simulate them hitting the glass and deleted them after a few seconds to simulate them fading away.
